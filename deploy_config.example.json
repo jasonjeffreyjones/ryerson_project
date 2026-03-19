@@ -1,6 +1,0 @@
-{
-  "ssh_user": "example-user",
-  "ssh_host": "example.com",
-  "ssh_port": 22,
-  "remote_path": "/path/to/public_html/ryerson-project/"
-}

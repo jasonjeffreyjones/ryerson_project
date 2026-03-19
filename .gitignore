@@ -1,3 +1,5 @@
+.env
 deploy_config.json
+db_config.json
 python/__pycache__/
 *.pyc

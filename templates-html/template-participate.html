@@ -38,7 +38,7 @@
 	<p>Enter an email address to be notified when participation features become active.</p>
 	<p><i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>Participation is limited to members of the research community.  A non-empty ORCID profile older than 180 days is required.</p>
 
-	<form class="mt-4">
+	<form class="mt-4" method="post" action="participate_submit.php">
 	  <div class="mb-3">
 		<label for="orcidUrl" class="form-label">ORCID URL</label>
 		<input
@@ -47,6 +47,7 @@
 		  id="orcidUrl"
 		  name="orcidUrl"
 		  placeholder="https://orcid.org/0000-0000-0000-0000"
+		  pattern="https://orcid\.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9X]{4}"
 		  required
 		>
 	  </div>
@@ -59,6 +60,7 @@
 		  id="emailAddress"
 		  name="emailAddress"
 		  placeholder="name@example.edu"
+		  maxlength="254"
 		  required
 		>
 	  </div>

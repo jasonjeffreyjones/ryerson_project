@@ -26,15 +26,15 @@ It currently:
 4. Writes rendered files into `website/`
 5. Syncs `website/` to the live server using `rsync`
 
-## Deploy Configuration
+## Environment Configuration
 
-Deploy settings are stored in a local config file named `deploy_config.json`.
+Secrets and environment-specific settings live in a local `.env` file.
 
 That file is intentionally ignored by git. A safe example file is included at:
 
-`deploy_config.example.json`
+`.env.example`
 
-Create your own local deploy config by copying the example and filling in real values.
+Both the Python deployment script and the PHP waiting list handler read the same `.env` pattern.
 
 ## License
 
