@@ -23,31 +23,34 @@ After initial development, Dr. Jones' aim is to create a **community of research
 Use the Prolific API to create a new Study for this day and recruit today's respondents.
 This is invisible to users.
 This is accomplished by one Python script.  That script is run once daily by a scheduled cron job.
-This feature is complete when once a day a new Prolific Study is created once per day, and responses are entering the database.
+This feature is complete when once a day a new Prolific Study is created and pushed live to respondents.
 
 ## Details: Collect respondents' responses to survey items.
 
 Web pages on jasonjones.ninja use PHP and mysql to present survey items and collect responses.
-For now, we aim for 32 items on the survey.  We aim for 12 respondents per day.
+For now, we aim for 24 items on the survey.  We aim for 12 respondents per day.
+
+ITEMS_TO_PRESENT = 24
+TIERS = 4
+ITEMS_PER_TIER = ITEMS_TO_PRESENT / TIERS
 
 Every survey item has this format: one statement; response options are 11 points on a Likert Agree-Disagree scale. 0 is maximum Disagreement. 10 is maximum Agreement.  This constraint is desired and enforced.  It keeps measurement consistent, persistent and standardized.
 
 Example Item: I believe that shape-shifting reptilian people control our world by taking on human form and gaining political power to manipulate our society.  Interface to respond from 0 to 10.  A response is required.
 
-Behind the scenes, there are Tiers of items.  In the database, statements are stored with their current Tier.  I don't think a Tier history is important.
+Behind the scenes, there are Tiers of items.  In the database, statements are stored with their current Tier.  I don't think a Tier history is important yet.
 
-Tier 10 items are always presented to all respondents every day.
-Tier 20 items are guaranteed minimum half of total respondents per day, and run for 100 days.  Then demoted to Tier 4 unless further payment is made.  Cost is 100 NEDbucks.
-Tier 30 items are guaranteed minimum one-quarter of total respondents per day, and run for 30 days.  Then demoted to Tier 4 unless further payment is made.  Cost is 10 NEDbucks.
-Tier 40 items are in a queue.  The top 8 items are guaranteed 1 respondent per day, and run for 5 days.  After that, the item goes to the back of the Tier 4 queue.
+Tier 10 items are always presented to all respondents every day.  In the database, there will be exactly ITEMS_TO_PRESENT / TIERS Tier 10 items.  At the moment, this constraint is manually met and enforced by Dr. Jones.  Look for ways to enforce and support this constraint in code; make suggestions, but do not slow down development momentum.
 
-For now, there are exactly 8 items allowed at Tier 10.  The remaining Tiers may have more.
+Tier 20 items are meant to be delivered to half of total respondents per day.  In the database, there will be at least ITEMS_TO_PRESENT / TIERS Tier 20 items and at most 2 x (ITEMS_TO_PRESENT / TIERS) Tier 20 items.  At the moment, this constraint is manually met and enforced by Dr. Jones.  Look for ways to enforce and support this constraint in code; make suggestions, but do not slow down development momentum.
 
-Respondents see 8 items from Tier 10, 8 items from Tier 20, 8 items from Tier 30 and 8 items from Tier 40.
+Tier 30 items are meant to be delivered to one-quarter of total respondents per day.  In the database, there will be at least ITEMS_TO_PRESENT / TIERS Tier 30 items and at most 4 x (ITEMS_TO_PRESENT / TIERS) Tier 30 items.  At the moment, this constraint is manually met and enforced by Dr. Jones.  Look for ways to enforce and support this constraint in code; make suggestions, but do not slow down development momentum.
 
-It is okay and expected that two respondents from the same day have not exactly the same set of items.  The order of items is a random permutation.
+Tier 40 items are in a queue.  For each respondent, choose ITEMS_TO_PRESENT / TIERS items from among the top 8 x (ITEMS_TO_PRESENT / TIERS) Tier 40 items.  Once per day, the items will be resorted and retiered based on community payments, community voting and queuing.   
 
-This feature is complete when a respondent can come to the website, read the instructions, agree to be truthful and throughtful and respond to a set of items that meet the requirements.
+It is okay and expected that two respondents from the same day have not exactly the same set of items.  Also, the order of items should be a random permutation of the selected items.
+
+This feature is complete when a respondent can come to the website, read the instructions, agree to be truthful and thoughtful, respond to a set of items that meet the requirements, and all responses are saved to the database.
 
 ### The Parallel Demonstration Survey feature
 
@@ -55,7 +58,10 @@ A separate but exact mirror of the survey exists as a public demonstration.  It 
 
 ## Details: Update all data files to include new responses.
 
-TODO
+Create a Raw Microdata file.  It contains one row per observation.  Response, item text, observation date, respondent data columns.
+Pull the data from the database.  Write to a .csv file.  Gzip the file.  Overwrite previous file.  Push a copy of that file to Zenodo.
+
+This feature is done when a test confirms that a user can download the data file from https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/download.html.  Also, that page has the correct format to be indexed by Google Datasets.
 
 ## Details: Share the new data files.
 
@@ -93,6 +99,24 @@ Use Stripe so that researchers can buy guaranteed observation bundles.  They buy
 Community features that live on ninja: discussion forum, prediction contest, votes to promote items.
 
 A Community Member can add one new Tier 4 item per day.  Community members may observe the current Tier state of items.  Perhaps a page for each Tier or one page with tabs.
+
+If Dr. Jones accepts a community join request, the following happens:
+1. The system pulls ORCID info into local profile.  Stored in the database.
+2. The user may now login through ORCID.
+3. The new community member receives a welcome email.
+
+When a community member logs in, they see the Member Home Page.  On this page they see:
+- Welcome member by name.
+- Show member's NedBucks balance.
+- Link to a form where Member can suggest a new Tier 4 item.  Maximum 1 submission per day.
+- Link to a page where Members see the current items.  Sorted by Tier.  Community ELO score. Button to promote with NedBucks.  Temporary promotion to higher tier.
+- Link to item bakeoff page.  Member sees two items.  Expresses preference.  Recorded to db.  Maximum 100 per day.
+- Link to view stats.  Member sees their counts of each action and the community total.  Percentile and histogram compares to all other users.
+- Link where Member can purchase more NedBucks.
+
+Cost is 100 NEDbucks for this service: Next-day promotion of chosen item to Tier 20. Guaranteed minimum half of total respondents per day, and run for 100 days.  Then demoted to Tier 40 unless further payment is made.
+
+Cost is 10 NEDbucks for this service: Next-day promotion of chosen item to Tier 30. Guaranteed minimum one-quarter of total respondents per day, and run for 30 days.  Then demoted to Tier 40 unless further payment is made.
 
 ## Daily Emails
 

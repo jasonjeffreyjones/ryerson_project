@@ -1,5 +1,7 @@
 .env
+.codex
 deploy_config.json
 db_config.json
+log.txt
 python/__pycache__/
 *.pyc

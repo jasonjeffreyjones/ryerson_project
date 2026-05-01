@@ -7,12 +7,8 @@ from pathlib import Path
 import re
 import subprocess
 
-PROJECT_ROOT = Path("/home/ec2-user/ryerson_project")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENV_PATH = PROJECT_ROOT / ".env"
-FALLBACK_ENV_PATHS = [
-	Path("/home/jasodfzw/ryerson.env"),
-	DEFAULT_ENV_PATH,
-]
 
 
 def load_env_file():
@@ -20,7 +16,7 @@ def load_env_file():
 	if env_path_override:
 		candidate_paths = [Path(env_path_override)]
 	else:
-		candidate_paths = FALLBACK_ENV_PATHS
+		candidate_paths = [DEFAULT_ENV_PATH]
 
 	env_path = next((path for path in candidate_paths if path.is_file()), None)
 	if env_path is None:
@@ -66,7 +62,7 @@ def main():
 		# The first loop executes each R script to create updated dictionaries.
 		for thisPage in pageList:
 			# Command to run dictionary-making R scripts with Rscript.
-			command = [f"Rscript /home/ec2-user/ryerson_project/R/create-{thisPage}-dictionary.R"]
+			command = [f"Rscript {PROJECT_ROOT / 'R' / f'create-{thisPage}-dictionary.R'}"]
 			
 			try:
 				result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
