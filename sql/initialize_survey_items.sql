@@ -1,5 +1,5 @@
 -- Run once after creating survey_items.
--- Inserts the initial item pool: 6 Tier 10, 12 Tier 20, 24 Tier 30, and 96 Tier 40 items.
+-- Inserts the initial item pool: 9 Tier 10, 12 Tier 20, 24 Tier 30, and 96 Tier 40 items.
 
 START TRANSACTION;
 
@@ -10,6 +10,9 @@ INSERT INTO survey_items (statement_text, current_tier, tier_queue_position, not
   ('I feel optimistic about my personal future.', 10, NULL, 'Initial Tier 10 seed item.'),
   ('I feel connected to my local community.', 10, NULL, 'Initial Tier 10 seed item.'),
   ('I believe the United States is moving in the right direction.', 10, NULL, 'Initial Tier 10 seed item.'),
+  ('I feel confident about the future of the United States.', 10, NULL, 'Initial Tier 10 seed item.'),
+  ('I believe people like me have a voice in American society.', 10, NULL, 'Initial Tier 10 seed item.'),
+  ('I feel hopeful about the next year.', 10, NULL, 'Initial Tier 10 seed item.'),
 
   ('I am satisfied with my current financial situation.', 20, NULL, 'Initial Tier 20 seed item.'),
   ('I expect my household financial situation to improve over the next year.', 20, NULL, 'Initial Tier 20 seed item.'),

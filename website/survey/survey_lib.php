@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../lib/ryerson_bootstrap.php';
 
-const RYERSON_ITEMS_TO_PRESENT = 24;
+const RYERSON_ITEMS_TO_PRESENT = 36;
 const RYERSON_TIERS = [10, 20, 30, 40];
-const RYERSON_ITEMS_PER_TIER = 6;
-const RYERSON_TIER_40_QUEUE_WINDOW = 48;
+const RYERSON_ITEMS_PER_TIER = 9;
+const RYERSON_TIER_40_QUEUE_WINDOW = 72;
 
 function ryerson_html(string $value): string
 {

@@ -72,10 +72,10 @@ The demo survey also reads real records from `survey_items`, but it does not wri
 
 The survey assumes enough active items already exist in the database:
 
-- 6 active Tier 10 items
-- At least 6 active Tier 20 items
-- At least 6 active Tier 30 items
-- At least 6 active Tier 40 items
+- Exactly 9 active Tier 10 items
+- At least 9 active Tier 20 items
+- At least 9 active Tier 30 items
+- At least 9 active Tier 40 items
 
 ## License
 

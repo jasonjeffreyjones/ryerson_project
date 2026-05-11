@@ -28,9 +28,9 @@ This feature is complete when once a day a new Prolific Study is created and pus
 ## Details: Collect respondents' responses to survey items.
 
 Web pages on jasonjones.ninja use PHP and mysql to present survey items and collect responses.
-For now, we aim for 24 items on the survey.  We aim for 12 respondents per day.
+For now, we aim for 36 items on the survey.  We aim for 12 respondents per day.
 
-ITEMS_TO_PRESENT = 24
+ITEMS_TO_PRESENT = 36
 TIERS = 4
 ITEMS_PER_TIER = ITEMS_TO_PRESENT / TIERS
 
@@ -59,7 +59,7 @@ A separate but exact mirror of the survey exists as a public demonstration.  It 
 ## Details: Update all data files to include new responses.
 
 Create a Raw Microdata file.  It contains one row per observation.  Response, item text, observation date, respondent data columns.
-Pull the data from the database.  Write to a .csv file.  Gzip the file.  Overwrite previous file.  Push a copy of that file to Zenodo.
+Pull the data from the database.  Write to a .csv file.  Gzip the file.  Overwrite previous file.  Push a copy of that file to Zenodo.  Also push a copy to GitHub.
 
 This feature is done when a test confirms that a user can download the data file from https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/download.html.  Also, that page has the correct format to be indexed by Google Datasets.
 

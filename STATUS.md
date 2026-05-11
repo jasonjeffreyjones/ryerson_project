@@ -5,12 +5,11 @@
 - Build and maintain momentum through small, deployable improvements.
 - Keep the website, scripts, and project structure clean enough for steady public development.
 - Build the next thin application slice without overcomplicating architecture.
-- Today we are sprinting toward automated recruitment of twelve respondents per day from Prolific.
+- Construct an admin interface for Dr. Jason Jeffrey Jones.  In an admin directory, there will be an index page.  From the index page, Dr. Jones can CRUD database records.  Begin with the Members table.
 
 ## Next
 
-- Configure and smoke-test automated daily recruitment through the Prolific API.
-- Construct an admin interface for Dr. Jason Jeffrey Jones.  In an admin directory, there will be an index page.  From the index page, Dr. Jones can CRUD database records.  Begin with the Members table.
+- Add lightweight smoke checks for the survey and demo survey flows.
 
 ## Later
 
@@ -33,6 +32,7 @@
 - Added the public demo survey flow at `website/demo-survey/`.
 - Added SQL scaffolding for survey items, respondents, and responses.
 - Added the Prolific study creation script for daily recruitment.
+- Changed the survey length from 24 items to 36 items.
 
 ## Known Risks
 
