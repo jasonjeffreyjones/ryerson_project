@@ -1,0 +1,5 @@
+Options -Indexes
+
+<FilesMatch "\.csv\.gz$">
+  Require all denied
+</FilesMatch>

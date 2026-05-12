@@ -30,7 +30,7 @@ It currently:
 Dynamic features under `website/` are PHP files that run on the production server:
 
 - `website/participate_submit.php`: saves waiting list requests
-- `website/waiting_list_admin.php`: protected waiting list admin review page
+- `website/admin/`: protected administration interface, waiting list review page, and response export tool
 - `website/survey/`: Prolific-facing survey flow that saves responses
 - `website/demo-survey/`: public survey demonstration that does not save responses
 
@@ -48,8 +48,8 @@ That file is intentionally ignored by git. A safe example file is included at:
 The Python deployment script and PHP handlers read the same `.env` pattern.
 Set `RYERSON_ENV_FILE` in production if the environment file lives outside the project directory.
 
-The admin waiting list review page at `website/waiting_list_admin.php` also uses that shared `.env` file.
-Set `RYERSON_ADMIN_USERNAME` and `RYERSON_ADMIN_PASSWORD` locally to protect the page with HTTP Basic authentication.
+The admin pages under `website/admin/` also use that shared `.env` file.
+Set `RYERSON_ADMIN_USERNAME` and `RYERSON_ADMIN_PASSWORD` locally to protect those pages with HTTP Basic authentication.
 
 Set `RYERSON_PROLIFIC_COMPLETION_CODE` locally. The Prolific study creation script sends this code to Prolific, and `website/survey/30-complete.php` uses the same code to build the completion redirect URL.
 

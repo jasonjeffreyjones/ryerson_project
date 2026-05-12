@@ -58,6 +58,18 @@ A separate but exact mirror of the survey exists as a public demonstration.  It 
 
 ## Details: Update all data files to include new responses.
 
+### Response data exports
+
+Response data is recorded in the production database in the table named responses.
+
+On the production web server there is a PHP script that creates exports of the response data.  The PHP script lives in admin/ and is named responses_export.php.  Specifically, here is what the script does:
+1. Create a list of observation_dates.  The list startes with the first day surveys ran: 2026-05-01.  The list ends with yesterday, defined as one day previous to current server time.
+2. For each day in the list, check whether a responses export file exists.  Response export files live in admin/exports/  If a file already exists for an observation_date, do nothing for that observation_date.
+3. If a responses export file does not exist for an observation_date, create one.  A responses export file is a csv file that contains all the rows from responses where observation_date equals that date. Fields are in this order: prolific_pid, observation_date, response_value, statement_text, survey_item_id, presented_order. ORDER BY prolific_pid, presented_order.  Include statement_text from survey_items by joining on survey_item_id.
+4. Gzip the csv file(s) so that the final form of the file is: admin/exports/responses_YYYY_MM_DD.csv.gz
+
+To be clear, when responses_export.php is run, it attempts to write one file of response exports per day.  It never overwrites existing files, but fills in holes if files are missing.  An administrator can manually run responses_export.php from admin/index.php  
+
 Create a Raw Microdata file.  It contains one row per observation.  Response, item text, observation date, respondent data columns.
 Pull the data from the database.  Write to a .csv file.  Gzip the file.  Overwrite previous file.  Push a copy of that file to Zenodo.  Also push a copy to GitHub.
 
@@ -117,6 +129,16 @@ When a community member logs in, they see the Member Home Page.  On this page th
 Cost is 100 NEDbucks for this service: Next-day promotion of chosen item to Tier 20. Guaranteed minimum half of total respondents per day, and run for 100 days.  Then demoted to Tier 40 unless further payment is made.
 
 Cost is 10 NEDbucks for this service: Next-day promotion of chosen item to Tier 30. Guaranteed minimum one-quarter of total respondents per day, and run for 30 days.  Then demoted to Tier 40 unless further payment is made.
+
+## Administration Interface
+
+An interface for human administration exists in admin/  The main interface is admin/index.php.  For now, Dr. Jones is the only one who may access the administration interface.  The admin/ directory is behind HTTPS authentication.
+
+From the admin interface, one can:
+- View existing waiting list entries.
+- Create the response data exports
+
+When a waiting list applicant is approved to be a community member, an email is sent to them.  The email contains a link to a member account creation page.  On the member account creation page, the user logs in with an ORCID.  The ORCID details are pulled in to their local profile.
 
 ## Daily Emails
 
