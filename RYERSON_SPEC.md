@@ -7,9 +7,9 @@ The primary artifact of the Ryerson Project is the web pages and web apps hosted
 To nowcast everything daily, we follow this automated daily loop:
 1. Recruit new respondents.
 2. Collect respondents' responses to survey items.
-3. Update all data files to include new responses.
-4. Share the new data files.
-5. Perform analysis and visualization based on the new data files.
+3. Update data file to include new responses.
+4. Share the updated data file.
+5. Perform analysis and visualization based on the updated data file.
 6. Share the new analysis.
 
 Dr. Jason Jeffrey Jones is the Benevolent Dictator for Life for the Ryerson Project.  The name is stylized as "the Ryerson Project" - lowercase t for the.  Abbreviate simply as Ryerson or tRP.
@@ -56,7 +56,7 @@ This feature is complete when a respondent can come to the website, read the ins
 
 A separate but exact mirror of the survey exists as a public demonstration.  It does not collect responses; it simply allows anyone to experience the survey flow.  It uses real statements from the database.  The interface matches exactly.  Tiering and item selection does not need to match exactly.  Length should match exactly.  The Parallel Demonstration Survey is clearly marked as a demonstration.
 
-## Details: Update all data files to include new responses.
+## Details: Update data file to include new responses.
 
 ### Response data exports
 
@@ -75,27 +75,59 @@ Pull the data from the database.  Write to a .csv file.  Gzip the file.  Overwri
 
 This feature is done when a test confirms that a user can download the data file from https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/download.html.  Also, that page has the correct format to be indexed by Google Datasets.
 
-## Details: Share the new data files.
+### Demographics data exports
+
+Demographics data of respondents is recorded on Prolific servers.  Each day, a Ryerson script uses the Prolific API to request the demographics of the respondents from previous days.  If all goes as planned, today we save yesterday's data.  (The script will backfill previous days if a day was missed due to transient network issues, Prolific downtime or Prolific errors.)  The script is similar to Response Data Exports, however, the source of the demographics data is Prolific.
+
+### Update the canonical concatenated data file
+
+Each day, the canonical concatenated data file for Ryerson is expected to grow by receiving new rows.  Each row is a response to a survey item with all respondent data attached.  That means users of the data have full microdata on each observation and do not need to do any joining or merging of files.
+
+The columns of the canonical concatenated data file for Ryerson are:
+response_value, statement_text, observation_date, hashed_respondent_id, age, sex, ethnicity, birth_country, residence_country, nationality, language, student, employment, time_on_task, approvals, survey_item_id, presented_order
+
+The canonical concatenated data file is a gzipped csv file.  The columns are in the order specified directly above.  There is one header row at the top of the file.  The rows are sorted by observation_date, hashed_respondent_id, presented_order.
+
+The canonical file is built by R/update_canonical_data_file.R.  update_canonical_data_file.R uses the daily files within private/response_exports and private/demographic_exports as the sources.  The R script may write to a temp file.  The final output replaces website/data/ryerson.csv.gz.  Log progress and issues with print().
+
+A cron job will run R/update_canonical_data_file.R once per day.  The canonical file is reconstructed from scratch each time.  The file lives at website/data/ryerson.csv.gz and it is meant to be shared publicly.  website/data/ryerson.csv.gz may be tracked by git and committed to GitHub, but the true up-to-date version lives on the production website.
+
+If a response export exists for a date but the demographic export is missing or empty, the script should log that issue and continue.
+
+The following R code is used to convert Prolific PID to a hashed_respondent_id.  This is a one-way hash that is non-stochastic.
+
+```r
+library(digest)
+hash_user_id <- function(user_id) {
+  full_hash <- digest(user_id, algo = "sha256", serialize = FALSE)
+  short_id <- substr(full_hash, 1, 12)
+  return(short_id)
+}
+```
+
+The script will hash the Prolific PID before joining.  The join is hashed_respondent_id and observation_date.
+
+The script should generate the expected date list from 2026-05-01 through yesterday and report missing response files and/or demographic files.  If any daily input file is malformed, the script should skip that date, log that issue and continue.  Only include rows in the canonical file if there was a completed join from response to demographic.
+
+If a respondent has response rows but no matching demographic row, the script should log that issue and continue.
+
+If a demographic row has values like CONSENT_REVOKED or DATA_EXPIRED, those values should be preserved as-is.
+
+time_on_task is the time in seconds as provided by Prolific. approvals is the value of 'Total approvals'.
+
+The script should detect duplicates by (hashed_respondent_id, observation_date, survey_item_id), log that issue and continue.  If duplicates are found, they are still included in the canonical data file.
+
+## Details: Share the new data file.
 
 TODO
 
-## Details: Perform analysis and visualization based on the new data files.
+## Details: Perform analysis and visualization based on the new data file.
 
 TODO
 
 ## Details: Share the new analysis.
 
 TODO
-
-## Details: Share the new data files.
-
-TODO
-
-goal
-user-visible behavior
-important constraints
-what can wait
-definition of done
 
 
 ## Community Features

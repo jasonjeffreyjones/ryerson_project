@@ -34,6 +34,7 @@
 - Added the Prolific study creation script for daily recruitment.
 - Changed the survey length from 24 items to 36 items.
 - Added the Prolific demographic export pull script for daily `.csv.gz` files in `private/demographic_exports/`.
+- Added the R script that rebuilds the public canonical microdata file at `website/data/ryerson.csv.gz`.
 
 ## Known Risks
 

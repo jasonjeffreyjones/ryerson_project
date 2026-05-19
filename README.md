@@ -41,6 +41,9 @@ Daily Prolific demographic export pulls are handled by `python/ryerson_project_p
 It stores one gzip-compressed CSV file per observation date in `private/demographic_exports/`, beginning with `2026-05-01`.
 By default, it fills missing files through yesterday in UTC.
 
+The public canonical microdata file is rebuilt by `R/update_canonical_data_file.R`.
+It joins local daily response and demographic exports, hashes respondent IDs, and writes `website/data/ryerson.csv.gz`.
+
 ## Environment Configuration
 
 Secrets and environment-specific settings live in a local `.env` file.

@@ -242,8 +242,10 @@ def fetch_demographic_csv(session, api_token, study_id):
 
 def write_gzip_file(destination_path, payload):
 	temporary_path = destination_path.with_suffix(destination_path.suffix + ".tmp")
-	with gzip.open(temporary_path, "wb") as file:
-		file.write(payload)
+	gzip_inner_name = destination_path.name.removesuffix(".gz")
+	with open(temporary_path, "wb") as raw_file:
+		with gzip.GzipFile(filename=gzip_inner_name, mode="wb", fileobj=raw_file) as file:
+			file.write(payload)
 	temporary_path.replace(destination_path)
 
 
