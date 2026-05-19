@@ -5,7 +5,6 @@
 - Build and maintain momentum through small, deployable improvements.
 - Keep the website, scripts, and project structure clean enough for steady public development.
 - Build the next thin application slice without overcomplicating architecture.
-- Deploy and production-test the administration interface and response data export functionality.
 
 ## Next
 
@@ -34,13 +33,9 @@
 - Added SQL scaffolding for survey items, respondents, and responses.
 - Added the Prolific study creation script for daily recruitment.
 - Changed the survey length from 24 items to 36 items.
-- Added the protected `website/admin/` interface with an admin home page.
-- Replaced the root-level waiting list admin page with `website/admin/waiting_list.php`.
-- Added manual response export creation at `website/admin/responses_export.php`.
-- Added ignored storage for generated daily response export files under `website/admin/exports/`.
+- Added the Prolific demographic export pull script for daily `.csv.gz` files in `private/demographic_exports/`.
 
 ## Known Risks
 
 - Several public pages still contain placeholder content.
 - Production PHP is on version 7.2, so future PHP code must stay compatible with that baseline unless hosting changes.
-- Response export creation still needs a production run against the live database.

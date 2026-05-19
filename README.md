@@ -37,6 +37,10 @@ Dynamic features under `website/` are PHP files that run on the production serve
 Daily Prolific recruitment is handled by `python/ryerson_project_create_prolific_study.py`.
 It creates and publishes one Prolific study for the current date.
 
+Daily Prolific demographic export pulls are handled by `python/ryerson_project_pull_demographic_exports.py`.
+It stores one gzip-compressed CSV file per observation date in `private/demographic_exports/`, beginning with `2026-05-01`.
+By default, it fills missing files through yesterday in UTC.
+
 ## Environment Configuration
 
 Secrets and environment-specific settings live in a local `.env` file.
@@ -63,6 +67,10 @@ Set the Prolific recruitment variables locally before running `python/ryerson_pr
 - `RYERSON_PROLIFIC_MAXIMUM_ALLOWED_MINUTES`
 - `RYERSON_PROLIFIC_REWARD_CENTS`
 - `RYERSON_PROLIFIC_EXTERNAL_STUDY_URL`
+
+Set `RYERSON_PROLIFIC_API_TOKEN` and `RYERSON_PROLIFIC_PROJECT_ID` locally before running `python/ryerson_project_pull_demographic_exports.py`.
+That script matches Prolific studies by the daily internal name format `Ryerson YYYY-MM-DD`.
+Useful options include `--start-date YYYY-MM-DD`, `--end-date YYYY-MM-DD`, `--include-today`, `--overwrite`, and `--dry-run`.
 
 ## Survey Database
 

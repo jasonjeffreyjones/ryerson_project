@@ -9,3 +9,5 @@ website/admin/exports/*.csv.gz
 website/admin/exports/responses_tmp_*
 private/response_exports/*
 !private/response_exports/.gitkeep
+private/demographic_exports/*
+!private/demographic_exports/.gitkeep
