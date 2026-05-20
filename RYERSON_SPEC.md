@@ -117,9 +117,14 @@ time_on_task is the time in seconds as provided by Prolific. approvals is the va
 
 The script should detect duplicates by (hashed_respondent_id, observation_date, survey_item_id), log that issue and continue.  If duplicates are found, they are still included in the canonical data file.
 
-## Details: Share the new data file.
+## Details: Share the updated data file.
 
-TODO
+Three data files will be available for download from https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/download.html
+1. ryerson.csv.gz This is the the canonical concatenated data file.
+2. monthly-aggregated-ryerson.csv.gz Each row contains month of collection, a statement, and respondent counts per response.  Recall that responses are the integers 0 through 10.  There will be no missing values.  If no '4' responses occurred for a statement within a month, for example, the column for 4 will contain the true zero count.
+2. all-time-aggregated-ryerson.csv.gz Each row contains a statement, and respondent counts per response.  Recall that responses are the integers 0 through 10.  There will be no missing values.  If no '7' responses ever occurred for a statement, for example, the column for 7 will contain the true zero count.
+
+monthly-aggregated-ryerson.csv.gz and all-time-aggregated-ryerson.csv.gz are derived directly from ryerson.csv.gz.  They are created by the script R/create_download_dictionary.R which replaces json/download.json when it is run.  create_download_dictionary.R updates MOST_RECENT_OBS_DATE, MICRODATA_ROWS_COUNT, MONTHLY_AGG_ROWS_COUNT, ALL_TIME_AGG_ROWS_COUNT, OLDEST_OBS_DATE, MOST_RECENT_OBS_DATE.
 
 ## Details: Perform analysis and visualization based on the new data file.
 

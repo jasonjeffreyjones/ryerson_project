@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import argparse
 import datetime
 import json
 import os
@@ -48,29 +49,41 @@ def get_required_env_var(name):
 		raise ValueError(f"Missing required environment variable: {name}")
 	return value
 
-def main():
-	pageList = ["index", "participate", "results", "download", "about"]
-	load_env_file()
-	
-	# There will be three loops through pageList.
-	# The first executes each R script to create the updated dictionaries.
-	# The second uses the HTML templates to write out new HTML pages (locally) with data from the dictionaries.
-	# The third uses ssh to overwrite the live HTML pages with the newly updated local versions.
-	
-	# TODO: Bring this loop back.
-	if False:
-		# The first loop executes each R script to create updated dictionaries.
-		for thisPage in pageList:
-			# Command to run dictionary-making R scripts with Rscript.
-			command = [f"Rscript {PROJECT_ROOT / 'R' / f'create-{thisPage}-dictionary.R'}"]
-			
-			try:
-				result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
-				print("Rscript output:", result.stdout.strip())
-			except subprocess.CalledProcessError as e:
-				print("Attempted:", command)
-				print("Failed with error:", e.stderr.strip())
-	
+
+def parse_args():
+	parser = argparse.ArgumentParser(description="Update Ryerson Project HTML pages.")
+	parser.add_argument(
+		"--pages",
+		nargs="+",
+		choices=["index", "participate", "results", "download", "about"],
+		default=["index", "participate", "results", "download", "about"],
+		help="Page names to update.",
+	)
+	parser.add_argument(
+		"--skip-deploy",
+		action="store_true",
+		help="Write local website files without rsyncing them to production.",
+	)
+	return parser.parse_args()
+
+
+def run_dictionary_scripts(pageList):
+	for thisPage in pageList:
+		script_path = PROJECT_ROOT / "R" / f"create_{thisPage}_dictionary.R"
+		if not script_path.is_file():
+			continue
+
+		command = ["Rscript", str(script_path)]
+		try:
+			result = subprocess.run(command, check=True, capture_output=True, text=True)
+			print("Rscript output:", result.stdout.strip())
+		except subprocess.CalledProcessError as e:
+			print("Attempted:", " ".join(command))
+			print("Failed with error:", e.stderr.strip())
+			raise
+
+
+def write_pages(pageList):
 	# The second loop uses the HTML templates to write out new HTML pages (locally) with data from the dictionaries.
 	for thisPage in pageList:
 		# Define file paths
@@ -113,8 +126,9 @@ def main():
 			file.write(content)
 		
 		print(f"{current_date} updated {thisPage}.html completed by {__file__}")
-	
-	# Instead of a final loop, try rsync.
+
+
+def deploy_pages():
 	rsync_ssh_command = f'ssh -p {get_required_env_var("RYERSON_DEPLOY_SSH_PORT")}'
 	source_path = str(PROJECT_ROOT / "website") + "/"
 	destination = (
@@ -128,6 +142,25 @@ def main():
 		print(f'rsynced to {get_required_env_var("RYERSON_DEPLOY_SSH_HOST")}')
 	except subprocess.CalledProcessError as e:
 		print("rsync failed with error:", e.stderr.strip())
+
+
+def main():
+	args = parse_args()
+	pageList = args.pages
+	
+	# There will be three loops through pageList.
+	# The first executes existing R scripts to create updated dictionaries.
+	# The second uses the HTML templates to write out new HTML pages (locally) with data from the dictionaries.
+	# The third uses ssh to overwrite the live HTML pages with the newly updated local versions.
+	run_dictionary_scripts(pageList)
+	write_pages(pageList)
+	
+	if args.skip_deploy:
+		return
+	
+	# Instead of a final loop, try rsync.
+	load_env_file()
+	deploy_pages()
 	
 
 if __name__ == "__main__":

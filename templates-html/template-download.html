@@ -3,13 +3,56 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Download Data from Nowcast Everything Daily</title>
-    <meta name="description" content="Download data files an open, daily omnibus survey. Measured by Dr. Jason Jeffrey Jones. Updates with new data daily.">
+    <title>Download Data from Nowcast Everything Daily - The Ryerson Project</title>
+    <meta name="description" content="Download Ryerson Project data here. Based on a daily omnibus survey directed by social scientists. Led by Dr. Jason Jeffrey Jones. Updates daily.">
     <meta name="author" content="Jason Jeffrey Jones">
 	<meta name="date" content="TODAYS_DATE_PYTHON">
 	<!-- Open Graph Meta Tags -->
-	<meta property="og:published_time" content="2025-08-06"> <!-- Original publication date -->
+	<meta property="og:published_time" content="2026-05-01"> <!-- Original publication date -->
     <meta property="og:updated_time" content="TODAYS_DATE_PYTHON"> <!-- Most recent update date -->
+	<script type="application/ld+json">
+	{
+	  "@context": "https://schema.org",
+	  "@type": "Dataset",
+	  "name": "The Ryerson Project Data",
+	  "description": "Download Ryerson Project data here. Based on a daily omnibus survey directed by social scientists. Led by Dr. Jason Jeffrey Jones. Updates daily.",
+	  "url": "https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/download.html",
+	  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+	  "creator": {
+	    "@type": "Person",
+	    "name": "Jason Jeffrey Jones"
+	  },
+	  "publisher": {
+	    "@type": "Organization",
+	    "name": "Jason Jeffrey Jones Productions",
+	    "url": "https://jasonjones.ninja/jason-jeffrey-jones-productions/"
+	  },
+	  "datePublished": "2026-05-01",
+	  "dateModified": "TODAYS_DATE_PYTHON",
+	  "temporalCoverage": "OLDEST_OBS_DATE/MOST_RECENT_OBS_DATE",
+	  "isAccessibleForFree": true,
+	  "distribution": [
+	    {
+	      "@type": "DataDownload",
+	      "name": "ryerson.csv.gz",
+	      "encodingFormat": "text/csv",
+	      "contentUrl": "https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/data/ryerson.csv.gz"
+	    },
+	    {
+	      "@type": "DataDownload",
+	      "name": "monthly-aggregated-ryerson.csv.gz",
+	      "encodingFormat": "text/csv",
+	      "contentUrl": "https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/data/monthly-aggregated-ryerson.csv.gz"
+	    },
+	    {
+	      "@type": "DataDownload",
+	      "name": "all-time-aggregated-ryerson.csv.gz",
+	      "encodingFormat": "text/csv",
+	      "contentUrl": "https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/data/all-time-aggregated-ryerson.csv.gz"
+	    }
+	  ]
+	}
+	</script>
 	<link rel="icon" type="image/png" href="images/favicon.png">
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
@@ -33,16 +76,23 @@
     </header>
 	
 	<h1>Raw Microdata</h1>
-	<p>TODO: put link to gzipped cumulative raw microdata csv file here.</p>
-	<p>For DIY analysis.  Each row contains a statement, a response, a hashed respondent indicator, and respondent demographics.<br>
+	<p>Download <a href="https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/data/ryerson.csv.gz">ryerson.csv.gz</a></p>
+	<p>For do-it-yourself analysis.  Each row contains a statement, a response, a hashed respondent indicator, and respondent demographics.<br>
 	Currently MICRODATA_ROWS_COUNT rows.</p>
 
 	<h1>Monthly Aggregations</h1>
-	<p>TODO: put link to gzipped cumulative monthly aggregated csv file here.</p>
+	<p>Download <a href="https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/data/monthly-aggregated-ryerson.csv.gz">monthly-aggregated-ryerson.csv.gz</a></p>
 	<p>For visualizations and simpler analysis.  Each row contains month of collection, a statement, and respondent counts per response.<br>
 	Currently MONTHLY_AGG_ROWS_COUNT rows.</p>
 	
-	<p>Data files also available through this Zenodo mirror</p>
+	<h1>All-Time Aggregations</h1>
+	<p>Download <a href="https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/data/all-time-aggregated-ryerson.csv.gz">all-time-aggregated-ryerson.csv.gz</a></p>
+	<p>For item-to-item comparisons and the simplest analysis.  Each row contains a statement and respondent counts per response.<br>
+	Currently ALL_TIME_AGG_ROWS_COUNT rows.</p>
+	
+	<p>Data files also available through this TODO Zenodo mirror.</p>
+	
+	<p>Most recent observations: MOST_RECENT_OBS_DATE. Ryerson Project earliest observations are dated OLDEST_OBS_DATE.</p>
 
 	<div class="container">
 	  <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
