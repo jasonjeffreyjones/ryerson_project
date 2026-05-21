@@ -121,8 +121,8 @@ The script should detect duplicates by (hashed_respondent_id, observation_date, 
 
 Three data files will be available for download from https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/download.html
 1. ryerson.csv.gz This is the the canonical concatenated data file.
-2. monthly-aggregated-ryerson.csv.gz Each row contains month of collection, a statement, and respondent counts per response.  Recall that responses are the integers 0 through 10.  There will be no missing values.  If no '4' responses occurred for a statement within a month, for example, the column for 4 will contain the true zero count.
-2. all-time-aggregated-ryerson.csv.gz Each row contains a statement, and respondent counts per response.  Recall that responses are the integers 0 through 10.  There will be no missing values.  If no '7' responses ever occurred for a statement, for example, the column for 7 will contain the true zero count.
+2. monthly-aggregated-ryerson.csv.gz Each row contains month of collection, a statement, mean response, standard deviation, N and respondent counts per response.  Recall that responses are the integers 0 through 10.  There will be no missing values.  If no '4' responses occurred for a statement within a month, for example, the column for 4 will contain the true zero count.
+2. all-time-aggregated-ryerson.csv.gz Each row contains a statement, mean response, standard deviation, N, and respondent counts per response.  Recall that responses are the integers 0 through 10.  There will be no missing values.  If no '7' responses ever occurred for a statement, for example, the column for 7 will contain the true zero count.
 
 monthly-aggregated-ryerson.csv.gz and all-time-aggregated-ryerson.csv.gz are derived directly from ryerson.csv.gz.  They are created by the script R/create_download_dictionary.R which replaces json/download.json when it is run.  create_download_dictionary.R updates MOST_RECENT_OBS_DATE, MICRODATA_ROWS_COUNT, MONTHLY_AGG_ROWS_COUNT, ALL_TIME_AGG_ROWS_COUNT, OLDEST_OBS_DATE, MOST_RECENT_OBS_DATE.
 
@@ -132,7 +132,13 @@ TODO
 
 ## Details: Share the new analysis.
 
-TODO
+On https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/results.html there will be a "Ranked by Agreement" table.  Primary columns are Rank,Agreement (all-time mean),Statement.  Additional columns (hidden in the interface unless expanded by user are N,Earliest Observation Date,Most Recent Observation Date).
+
+At present, there will be one table containing the summarized results for all items ever observed.  R/create_results_dictionary.R will create the HTML table from the canonical microdata file.  That content will replace RANKED_BY_AGREEMENT_TABLE in the HTML template.
+
+In the future, the Ranked by Agreement will be a paginated table sortable on any column - but that is future functionality.
+
+Search on https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/results.html will remain TODO for now.
 
 
 ## Community Features
@@ -198,6 +204,8 @@ Always use https within jasonjones.ninja. Never add www. in front of jasonjones.
 Never put secrets in tracked files, on GitHub, within served directories or other risky places.  Use a config file or files.
 
 Let's keep track of what is Now, Next, Later and Done using STATUS.md
+
+In R code, use tidyverse conventions for all data work.
 
 Include a file that illustrates which cron jobs run to make the system work.
 

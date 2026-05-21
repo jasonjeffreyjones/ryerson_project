@@ -5,6 +5,7 @@
 - Build and maintain momentum through small, deployable improvements.
 - Keep the website, scripts, and project structure clean enough for steady public development.
 - Build the next thin application slice without overcomplicating architecture.
+- Decide and implement the next thin deployable slice.
 
 ## Next
 
@@ -36,8 +37,10 @@
 - Added the Prolific demographic export pull script for daily `.csv.gz` files in `private/demographic_exports/`.
 - Added the R script that rebuilds the public canonical microdata file at `website/data/ryerson.csv.gz`.
 - Implemented the download data sharing slice with monthly and all-time aggregate files derived from `website/data/ryerson.csv.gz`.
+- Added `mean_response`, `sd`, and `n` calculated columns to the monthly and all-time aggregate data files.
 - Added Google Dataset-compatible JSON-LD metadata to the download page template.
 - Updated the page builder to run existing `R/create_<page>_dictionary.R` scripts and support local single-page updates without deploying.
+- Implemented the daily updating Ranked by Agreement table on `results.html`.
 
 ## Known Risks
 

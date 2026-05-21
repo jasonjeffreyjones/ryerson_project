@@ -73,6 +73,9 @@ aggregate_response_counts <- function(data, group_columns) {
 	if (nrow(data) == 0) {
 		empty_columns <- c(
 			setNames(rep(list(character()), length(group_columns)), group_columns),
+			list(mean_response = numeric()),
+			list(sd = numeric()),
+			list(n = integer()),
 			setNames(rep(list(integer()), length(RESPONSE_COLUMNS)), RESPONSE_COLUMNS)
 		)
 		return(tibble::as_tibble(empty_columns))
@@ -93,6 +96,15 @@ aggregate_response_counts <- function(data, group_columns) {
 	response_counts <- valid_data %>%
 		count(across(all_of(group_columns)), response_column, name = "respondent_count")
 
+	response_stats <- valid_data %>%
+		group_by(across(all_of(group_columns))) %>%
+		summarise(
+			mean_response = mean(response_value),
+			sd = sd(response_value),
+			n = n(),
+			.groups = "drop"
+		)
+
 	group_keys %>%
 		tidyr::expand_grid(response_column = factor(RESPONSE_COLUMNS, levels = RESPONSE_COLUMNS)) %>%
 		left_join(response_counts, by = c(group_columns, "response_column")) %>%
@@ -103,7 +115,8 @@ aggregate_response_counts <- function(data, group_columns) {
 			values_fill = 0L
 		) %>%
 		add_missing_response_columns() %>%
-		select(all_of(group_columns), all_of(RESPONSE_COLUMNS)) %>%
+		left_join(response_stats, by = group_columns) %>%
+		select(all_of(group_columns), mean_response, sd, n, all_of(RESPONSE_COLUMNS)) %>%
 		arrange(across(all_of(group_columns)))
 }
 
