@@ -44,6 +44,19 @@ By default, it fills missing files through yesterday in UTC.
 The public canonical microdata file is rebuilt by `R/update_canonical_data_file.R`.
 It joins local daily response and demographic exports, hashes respondent IDs, and writes `website/data/ryerson.csv.gz`.
 
+The public download aggregate files are rebuilt by `R/create_download_dictionary.R`.
+It reads `website/data/ryerson.csv.gz`, writes `website/data/monthly-aggregated-ryerson.csv.gz`
+and `website/data/all-time-aggregated-ryerson.csv.gz`, and updates `json/download.json`.
+
+Daily Zenodo mirroring is handled by `python/ryerson_project_upload_data_to_zenodo.py`.
+It creates a new Zenodo version from the latest published deposition, uploads the three files
+in `website/data/`, publishes the new version, and records local ignored state at
+`private/zenodo_upload_state.json`.
+
+The combined daily data publishing wrapper is `python/wrangle_and_upload.sh`.
+It rebuilds the canonical data file, rebuilds the aggregate data files, and then publishes the
+current files to Zenodo.
+
 ## Environment Configuration
 
 Secrets and environment-specific settings live in a local `.env` file.
@@ -96,6 +109,20 @@ Useful options for `python/ryerson_project_create_prolific_study.py` include `--
 Set `RYERSON_PROLIFIC_API_TOKEN` and `RYERSON_PROLIFIC_PROJECT_ID` locally before running `python/ryerson_project_pull_demographic_exports.py`.
 That script matches Prolific studies by the daily internal name format `Ryerson YYYY-MM-DD`.
 Useful options include `--start-date YYYY-MM-DD`, `--end-date YYYY-MM-DD`, `--include-today`, `--overwrite`, and `--dry-run`.
+
+Set the Zenodo variables locally before running `python/ryerson_project_upload_data_to_zenodo.py`:
+
+- `RYERSON_ZENODO_ACCESS_TOKEN`
+- `RYERSON_ZENODO_LATEST_DEPOSITION_ID`
+- `RYERSON_ZENODO_API_BASE`, usually `https://zenodo.org/api`
+
+The Zenodo token needs `deposit:write` and `deposit:actions` scopes. The latest deposition ID is
+the numeric ID for the latest published version, not the all-versions concept ID. After a successful
+publish, the script stores the latest published deposition ID in `private/zenodo_upload_state.json`
+and uses that state on later runs. Useful options include `--dry-run` and `--force`.
+
+The public download page links to the stable Zenodo concept DOI:
+`https://doi.org/10.5281/zenodo.20346278`.
 
 ## Survey Database
 

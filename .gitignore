@@ -11,3 +11,5 @@ private/response_exports/*
 !private/response_exports/.gitkeep
 private/demographic_exports/*
 !private/demographic_exports/.gitkeep
+private/zenodo_upload_state.json
+private/zenodo_upload_state.json.tmp
