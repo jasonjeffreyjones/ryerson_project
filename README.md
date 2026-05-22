@@ -70,6 +70,28 @@ Set the Prolific recruitment variables locally before running `python/ryerson_pr
 - `RYERSON_PROLIFIC_MAXIMUM_ALLOWED_MINUTES`
 - `RYERSON_PROLIFIC_REWARD_CENTS`
 - `RYERSON_PROLIFIC_EXTERNAL_STUDY_URL`
+- `RYERSON_PROLIFIC_COOLDOWN_PARTICIPANT_GROUP_ID` to enable the best-effort cooldown blocklist
+- `RYERSON_RESPONSE_EXPORTS_DIR` to override the default `private/response_exports/` source directory
+
+The seven-day Prolific cooldown is best effort. The study creation script reads raw Prolific IDs
+from private response export files, syncs the configured participant group, and uses that group as
+a Prolific blocklist. If the cooldown sync fails, the script logs the issue and still creates and
+publishes the daily study.
+
+To create the cooldown participant group manually in Prolific:
+
+1. Open Prolific Researcher and go to the Workspace `Participants` area.
+2. Choose `Groups`, then create a new group.
+3. Name it `Ryerson 7-day cooldown blocklist`.
+4. Add a description such as `Rolling participant group used by Ryerson daily recruitment to block previous seven days of respondents.`
+5. Save it without manually adding participant IDs.
+6. Copy the participant group ID into `RYERSON_PROLIFIC_COOLDOWN_PARTICIPANT_GROUP_ID`.
+
+Prolific documents the participant group API at `https://docs.prolific.com/api-reference/participant-groups`
+and the blocklist filter pattern at `https://docs.prolific.com/documentation/core-concepts/finding-the-right-participants`.
+
+Useful options for `python/ryerson_project_create_prolific_study.py` include `--dry-run` and
+`--sync-cooldown-only`.
 
 Set `RYERSON_PROLIFIC_API_TOKEN` and `RYERSON_PROLIFIC_PROJECT_ID` locally before running `python/ryerson_project_pull_demographic_exports.py`.
 That script matches Prolific studies by the daily internal name format `Ryerson YYYY-MM-DD`.

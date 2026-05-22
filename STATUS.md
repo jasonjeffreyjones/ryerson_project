@@ -5,7 +5,6 @@
 - Build and maintain momentum through small, deployable improvements.
 - Keep the website, scripts, and project structure clean enough for steady public development.
 - Build the next thin application slice without overcomplicating architecture.
-- Decide and implement the next thin deployable slice.
 
 ## Next
 
@@ -41,6 +40,7 @@
 - Added Google Dataset-compatible JSON-LD metadata to the download page template.
 - Updated the page builder to run existing `R/create_<page>_dictionary.R` scripts and support local single-page updates without deploying.
 - Implemented the daily updating Ranked by Agreement table on `results.html`.
+- Implemented the best-effort seven day Prolific cooldown feature in daily recruitment.
 
 ## Known Risks
 

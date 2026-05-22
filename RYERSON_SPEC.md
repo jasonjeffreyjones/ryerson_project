@@ -25,6 +25,8 @@ This is invisible to users.
 This is accomplished by one Python script.  That script is run once daily by a scheduled cron job.
 This feature is complete when once a day a new Prolific Study is created and pushed live to respondents.
 
+The script implements a seven-day cooldown period for repeat participation.  For the most part, we want to sample the Prolific US pool WITH REPLACEMENT.  However, some eager participants acticely seek out surveys they have taken and enjoyed in the past.  We want to avoid these participants becoming too large a portion of the sample.  Therefore, the script creates a 7-day participant group as a rolling blocklist.  Only Ryerson respondents from the previous seven days are placed on today's survey blocklist.  After seven days of no allowed responses, Prolific users roll off and are eligible again.
+
 ## Details: Collect respondents' responses to survey items.
 
 Web pages on jasonjones.ninja use PHP and mysql to present survey items and collect responses.
