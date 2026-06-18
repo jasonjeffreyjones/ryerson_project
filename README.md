@@ -4,7 +4,7 @@ The Ryerson Project aims to nowcast everything daily.
 
 This repository contains the source files for the Ryerson Project website at:
 
-`https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/`
+<https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/>
 
 ## Repository Structure
 
@@ -31,6 +31,9 @@ Dynamic features under `website/` are PHP files that run on the production serve
 
 - `website/participate_submit.php`: saves waiting list requests
 - `website/admin/`: protected administration interface, waiting list review page, and response export tool
+- `website/member/`: ORCID-only community member login, invitation acceptance, and member home
+- `website/member/suggest-item.php`: member suggested item submission form
+- `website/admin/suggested_items.php`: admin review page for suggested items
 - `website/survey/`: Prolific-facing survey flow that saves responses
 - `website/demo-survey/`: public survey demonstration that does not save responses
 
@@ -72,6 +75,25 @@ The admin pages under `website/admin/` also use that shared `.env` file.
 Set `RYERSON_ADMIN_USERNAME` and `RYERSON_ADMIN_PASSWORD` locally to protect those pages with HTTP Basic authentication.
 
 Set `RYERSON_PROLIFIC_COMPLETION_CODE` locally. The Prolific study creation script sends this code to Prolific, and `website/survey/30-complete.php` uses the same code to build the completion redirect URL.
+
+Set these variables locally before using community member invitations or ORCID login:
+
+- `RYERSON_SITE_BASE_URL`, for example `https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project`
+- `RYERSON_MAIL_FROM`
+- `RYERSON_MAIL_REPLY_TO`, optional but recommended
+- `RYERSON_INVITATION_TTL_DAYS`, defaults to `30`
+- `RYERSON_ORCID_BASE_URL`, usually `https://orcid.org`
+- `RYERSON_ORCID_API_BASE_URL`, usually `https://pub.orcid.org`
+- `RYERSON_ORCID_CLIENT_ID`
+- `RYERSON_ORCID_CLIENT_SECRET`
+- `RYERSON_ORCID_REDIRECT_URI`, expected to be `https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/member/orcid_callback.php`
+
+Register the exact ORCID redirect URI in the ORCID developer settings before testing live login.
+The community flow expects the `community_members`, `community_invitations`, and `suggested_items` tables from `sql/`.
+Approving a waiting list request performs a strict public ORCID record check before sending an invitation.
+Invitation tokens are single-use and only their SHA-256 hashes are stored in the database.
+Members may submit one suggested item per UTC day. Admin-approved suggestions become active Tier 40
+rows in `survey_items` with `tier_queue_position` left `NULL` for future queue logic.
 
 Set the Prolific recruitment variables locally before running `python/ryerson_project_create_prolific_study.py`:
 
@@ -136,6 +158,9 @@ The survey assumes enough active items already exist in the database:
 - At least 9 active Tier 20 items
 - At least 9 active Tier 30 items
 - At least 9 active Tier 40 items
+
+Community suggested items require `sql/create_suggested_items.sql`. The approval flow also expects
+`survey_items.created_by_member_id`, which is present in `sql/create_survey_items.sql`.
 
 ## License
 

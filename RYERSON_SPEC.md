@@ -130,7 +130,35 @@ monthly-aggregated-ryerson.csv.gz and all-time-aggregated-ryerson.csv.gz are der
 
 ## Details: Perform analysis and visualization based on the new data file.
 
-TODO
+There will be pages and sets of pages that display visualizations and present analyses based on the canonical cumulative file.  The page results.html will include navigation into those pages.
+
+### Item Pages
+
+A directory named item-results/ will contain one HTML results page for each item.  Each page will be named with this template: ITEM_ID-FIRST_WORD-SECOND_WORD-THIRD_WORD.html.  ITEM_ID is the numeric id from the database.  FIRST_WORD is the first word from the text of the item that is not a stop word - SECOND_WORD and THIRD_WORD similarly.  Each item page is a static HTML page generated anew each day.  An index page on item-results/index.html will contain a link to each item page.
+
+An item page has the following format. The full text of the item appears in a sticky header.  An 11 bar histogram shows the all-time count of observed responses per each response option.  Descriptive statistics (also all-time) are displayed: mean, median, standard deviation, N, standard error.  A templated sentence explains: American adults' average (mean) response was ALL_TIME_MEAN on a scale of 0 (Disagree) to 10 (Agree).  ITEM_N responses have been collected (so far) from EARLIEST_OBS_DATE to MOST_RECENT_OBS_DATE.
+
+If the item has 100 or more total observations, then a comparison to all other qualifying items is displayed.  Qualifying are all items with 100 or more total observations.  Based on all-time mean, the rank for this item out of total qualifying items and the corresponding percentile are displayed.  Higher means (more agreement) are higher rank, and this is explained briefly.
+
+A monthly trend visualization shows a stacked bar chart - one stacked bar per month.  The bars always total to 100%.  There are 11 bars showing the percentage of each month's total responses that each of the 11 possible values received.  Be aware that some response values can collect zero responses.  For instance, "I am a human" would have mostly high agreement and possibly no disagree values.  Monthly mean values are represented by a black dot horizontally centered within each bar.  Separate y-axis scales appear: percentage on left for the stacked bar chart and 0 to 10 on the right for the monthly mean points.  A path connects the monthly mean points.
+
+An annual trend section presents estimates for the annual trend (as long as the item has more than one observation date and 100 or more observations total).  Annual trend is estimated by OLS at the response level.  A templated paragraph presents the results: Observations suggest a trend of increasing|decreasing|unchanging agreement equally to ANNUAL_CHANGE_ESTIMATE per year.  Regression results place a 95% confidence interval around that estimate of \[CI_LOWER, CI_UPPER\].  The full regression table is placed in a pre tag but folded up unless the user clicks to see it.
+
+### Age Analyses
+
+The page results-by-age.html highlights those items in which Age and agreement are most strongly correlated.  Items with fewer than 100 total observations are not eligible to appear on this page.
+
+Five visualizations illustrate the five items where age and agreement are most strongly positively correlated.  Each visualization has age on the x-axis and agreement on the y-axis.  Zoom the visualization x-axis to the range 18 to 90.  Zoom the y-axis to include all means by age.  Points show means by age.  A line depicts the line of best fit based on a pre-computed linear regression Agreement ~ Age for this item.  The title of the figure is the text of the item.  The subtitle is Agreement by Age, American adults, N = ITEM_N.  A caption reads "Source = Ryerson Project, YYYY-MM-DD." in 10-point, medium grey text.
+
+In addition to the visualizations above, a numbered list contains the text of the five items.  For each item, there is a "See report" link to the item page.
+
+Similarly, five visualizations illustrate the five items where age and agreement are most strongly *negatively* correlated.
+
+### Home page featured item
+
+On the Ryerson Project home page at https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/ there will be one featured item (in addition to the existing content). R/create_index_dictionary.R will create the appropriate content.  That script will run once per day.  See R/create_results_dictionary.R for a similar script.  A featured item will be randomly chosen from those items that meet this criterion: ITEM_N greater than equal to the median of all ITEM_N values.
+
+The featured item content on the home page is a subset of what you would find on the item page.  Specifically, an 11 bar histogram shows the all-time count of observed responses per each response option.  Descriptive statistics (also all-time) are displayed: mean, median, standard deviation, N, standard error.  A templated sentence explains: American adults' average (mean) response was ALL_TIME_MEAN on a scale of 0 (Disagree) to 10 (Agree).  ITEM_N responses have been collected (so far) from EARLIEST_OBS_DATE to MOST_RECENT_OBS_DATE.  See full results for *ITEM_TEXT*.  (*ITEM_TEXT* is a link to the item page.)
 
 ## Details: Share the new analysis.
 
@@ -165,8 +193,8 @@ If Dr. Jones accepts a community join request, the following happens:
 When a community member logs in, they see the Member Home Page.  On this page they see:
 - Welcome member by name.
 - Show member's NedBucks balance.
-- Link to a form where Member can suggest a new Tier 4 item.  Maximum 1 submission per day.
-- Link to a page where Members see the current items.  Sorted by Tier.  Community ELO score. Button to promote with NedBucks.  Temporary promotion to higher tier.
+- Link to a form where Member can suggest a new item.  The item is recorded to the database as a Suggested Item.  Each member may submit a maximum 1 Suggested Item per day.  There is an admin interface for Dr. Jones to edit and approve Suggested Items.  He may edit the item to fix a typo or wording.  He may reject the Suggested Item with a reason.  He may approve the Suggested Item.  Upon reject or approve, the suggesting Member receives an email notifying them of the result.  An approved Suggested Item becomes a Tier 4 item.
+- Link to a page where Members see the current items.  Search box so Member can limit to keyword match.  Items are sorted by current Tier.  Tier is visually clear - light background color or a leading small symbol?  Also displayed is Community ELO score - will be a daily-updated ELO score based on temporally discounted Bakeoff results.  Button to promote item with NedBucks.  Promotion temporarily pushes item to higher tier.  Promoted items have Community ELO scores, but score does not determine its Tier.
 - Link to item bakeoff page.  Member sees two items.  Expresses preference.  Recorded to db.  Maximum 100 per day.
 - Link to view stats.  Member sees their counts of each action and the community total.  Percentile and histogram compares to all other users.
 - Link where Member can purchase more NedBucks.
@@ -194,6 +222,8 @@ A detailed log email once per day that contains the content of the daily log.
 An automated analysis email once per month that provides an automated blog style dive into the data.
 
 Daily email to Jason logs scripts events.  At the top: alerts if problems occur.  Examples: a script errors, the same respondent somehow responded more than once today.
+
+Emails are sent from this address: "the Ryerson Project <ryerson@jasonjones.ninja>"
 
 ## Best Practices to Follow
 
