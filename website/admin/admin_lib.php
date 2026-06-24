@@ -12,6 +12,9 @@ function ryerson_admin_bootstrap(): void
 {
 	load_env_file();
 	require_admin_basic_auth();
+	if (session_status() !== PHP_SESSION_ACTIVE) {
+		session_start();
+	}
 }
 
 function ryerson_admin_html(string $value): string
@@ -29,6 +32,47 @@ function ryerson_admin_exit_with_error(int $statusCode, string $title, string $m
 	echo '</div>';
 	ryerson_admin_render_footer();
 	exit;
+}
+
+function ryerson_admin_get_csrf_token(): string
+{
+	if (!isset($_SESSION['ryerson_admin_csrf_token']) || !is_string($_SESSION['ryerson_admin_csrf_token']) || $_SESSION['ryerson_admin_csrf_token'] === '') {
+		$_SESSION['ryerson_admin_csrf_token'] = bin2hex(random_bytes(32));
+	}
+
+	return (string) $_SESSION['ryerson_admin_csrf_token'];
+}
+
+function ryerson_admin_verify_csrf_token(): void
+{
+	$providedToken = isset($_POST['csrf_token']) ? (string) $_POST['csrf_token'] : '';
+	$expectedToken = ryerson_admin_get_csrf_token();
+	if ($providedToken === '' || !hash_equals($expectedToken, $providedToken)) {
+		ryerson_admin_exit_with_error(400, 'Invalid Request', 'The admin form token was invalid. Please reload the page and try again.');
+	}
+}
+
+function ryerson_admin_set_flash(string $type, string $message): void
+{
+	$_SESSION['ryerson_admin_flash'] = [
+		'type' => $type,
+		'message' => $message,
+	];
+}
+
+function ryerson_admin_pop_flash(): array
+{
+	if (!isset($_SESSION['ryerson_admin_flash']) || !is_array($_SESSION['ryerson_admin_flash'])) {
+		return [];
+	}
+
+	$flash = $_SESSION['ryerson_admin_flash'];
+	unset($_SESSION['ryerson_admin_flash']);
+
+	return [
+		'type' => isset($flash['type']) ? (string) $flash['type'] : 'info',
+		'message' => isset($flash['message']) ? (string) $flash['message'] : '',
+	];
 }
 
 function ryerson_admin_render_header(string $title): void
@@ -49,6 +93,7 @@ function ryerson_admin_render_header(string $title): void
       <nav class="d-flex flex-wrap gap-2 mb-4" aria-label="Admin navigation">
         <a class="btn btn-sm btn-outline-secondary" href="index.php">Admin Home</a>
         <a class="btn btn-sm btn-outline-secondary" href="waiting_list.php">Waiting List</a>
+        <a class="btn btn-sm btn-outline-secondary" href="suggested_items.php">Suggested Items</a>
         <a class="btn btn-sm btn-outline-secondary" href="responses_export.php">Response Exports</a>
       </nav>
 HTML;

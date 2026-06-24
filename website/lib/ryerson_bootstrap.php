@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 const WAITING_LIST_TABLE_NAME = 'waiting_list_requests';
+const COMMUNITY_MEMBERS_TABLE_NAME = 'community_members';
+const COMMUNITY_INVITATIONS_TABLE_NAME = 'community_invitations';
+const SUGGESTED_ITEMS_TABLE_NAME = 'suggested_items';
 define('DEFAULT_ENV_PATH', dirname(__DIR__, 2) . '/.env');
 
 function load_env_file(): void
@@ -62,6 +65,16 @@ function get_required_env_value(string $key): string
 	$value = getenv($key);
 	if ($value === false || $value === '') {
 		throw new RuntimeException("Environment variable {$key} is missing.");
+	}
+
+	return $value;
+}
+
+function get_optional_env_value(string $key, string $defaultValue): string
+{
+	$value = getenv($key);
+	if ($value === false || $value === '') {
+		return $defaultValue;
 	}
 
 	return $value;

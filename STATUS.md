@@ -6,7 +6,8 @@
 - Keep the website, scripts, and project structure clean enough for steady public development.
 - Build the next thin application slice without overcomplicating architecture.
 - Under the Join Waiting List form on participate.html, add: Already a Member?  Log in.  This takes user to log in with ORCID.
-- The link from Current Items on the Community Member page should go to a page for viewing items.
+- The link from Current Items on the Community Member page should go to a page for viewing items.  Let's implement that page per the specification.  Viewing items and limiting by keyword should work now.  It is okay to stub other functions that are not yet fully specified, such as promote with NEDbucks.
+- Let's delay Search items on Results implementation for now.  In the HTML template for results.html, comment out the Search section and its TODO text.  It is okay that appears in View Page Source in production.
 
 ## Next
 

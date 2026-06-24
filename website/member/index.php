@@ -66,7 +66,7 @@ $nedbucksBalance = $isLoggedIn ? (int) $member['nedbucks_balance'] : 0;
         <div class="col-md-6 col-lg-4">
           <section class="border rounded p-3 h-100">
             <h2 class="h5">Current Items</h2>
-            <button class="btn btn-outline-secondary" type="button" disabled>Coming Soon</button>
+            <a class="btn btn-primary" href="current-items.php">View Items</a>
           </section>
         </div>
         <div class="col-md-6 col-lg-4">

@@ -15,6 +15,13 @@ try {
 	$waitingListCountRow = $waitingListCountResult->fetch_assoc();
 	$waitingListCount = isset($waitingListCountRow['total_count']) ? (int) $waitingListCountRow['total_count'] : 0;
 	$waitingListCountResult->close();
+	$suggestedItemsCountResult = $mysqli->query('SELECT COUNT(*) AS total_count FROM `' . SUGGESTED_ITEMS_TABLE_NAME . '` WHERE moderation_status = "pending"');
+	if ($suggestedItemsCountResult === false) {
+		throw new RuntimeException('Could not count pending suggested items.');
+	}
+	$suggestedItemsCountRow = $suggestedItemsCountResult->fetch_assoc();
+	$pendingSuggestedItemsCount = isset($suggestedItemsCountRow['total_count']) ? (int) $suggestedItemsCountRow['total_count'] : 0;
+	$suggestedItemsCountResult->close();
 	$mysqli->close();
 
 	$exportStatus = ryerson_admin_get_response_export_status();
@@ -39,6 +46,14 @@ ryerson_admin_render_header('Ryerson Admin');
             <h2 class="h4">Waiting List</h2>
             <p class="mb-3"><?php echo ryerson_admin_html((string) $waitingListCount); ?> total waiting list submissions.</p>
             <a class="btn btn-primary" href="waiting_list.php">View Waiting List</a>
+          </section>
+        </div>
+
+        <div class="col-md-6">
+          <section class="border rounded p-3 h-100">
+            <h2 class="h4">Suggested Items</h2>
+            <p class="mb-3"><?php echo ryerson_admin_html((string) $pendingSuggestedItemsCount); ?> pending suggested items.</p>
+            <a class="btn btn-primary" href="suggested_items.php">Review Suggested Items</a>
           </section>
         </div>
 
