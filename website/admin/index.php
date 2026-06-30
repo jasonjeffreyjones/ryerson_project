@@ -85,6 +85,17 @@ ryerson_admin_render_header('Ryerson Admin');
 
         <div class="col-md-6">
           <section class="border rounded p-3 h-100">
+            <h2 class="h4">Admin Overview</h2>
+            <p class="mb-3">Review project counts and send the daily Admin Overview email.</p>
+            <form method="post" action="daily_admin_overview.php" class="d-inline">
+              <button type="submit" class="btn btn-primary">Send Admin Overview</button>
+            </form>
+            <a class="btn btn-outline-secondary" href="daily_admin_overview.php">View Overview</a>
+          </section>
+        </div>
+
+        <div class="col-md-6">
+          <section class="border rounded p-3 h-100">
             <h2 class="h4">Response Exports</h2>
             <p class="mb-2">
               <?php echo ryerson_admin_html((string) count($exportStatus['existing_dates'])); ?>

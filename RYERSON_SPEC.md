@@ -247,7 +247,27 @@ From the admin interface, one can:
 
 When a waiting list applicant is approved to be a community member, an email is sent to them.  The email contains a link to a member account creation page.  On the member account creation page, the user logs in with an ORCID.  The ORCID details are pulled in to their local profile.
 
-## Daily Emails
+## Daily Automated Emails
+
+Emails are sent from this address: "Ryerson Project <ryerson@jasonjones.ninja>"
+
+One daily email message is the Admin Overview.  The Admin Overview logs the state of the Ryerson Project through counts.  The Admin Overview email message is sent to Dr. Jones at this address: jason.j.jones@stonybrook.edu.  An admin page has two functions: a logged-in administrator can send the email manually, or a Python script from the automation server can cause the email to be sent.  A cron job will be set up so the admin email is sent once per day at 10 minutes past UTC midnight.
+
+At minimum, all of the following counts are included in the Admin Overview:
+- Total unique responent-observation_date all-time and previous day.
+- Total unique prolific_pid within respondents table all-time.
+- Total responses all-time, previous day and subtotals per response_value.
+- Total active survey_items and subtotals by current_tier.
+- Total waiting_list_requests.
+- Total Invitations and subtotals by status.
+- Total Community Members.
+- Total all-time Item Bakeoff results, Item Bakeoff results from previous day, Total all-time unique members who have ever submitted an Item Bakeoff, total unique members who submitted a bakeoff from previous day.
+- Total suggested_items and subtotals by moderation_status.
+
+In the Admin Overview email message, also include these links for convenience:
+- [Ryerson Home](https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/)
+- [Ryerson Administration](https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/admin/)
+- [Zenodo Data](https://zenodo.org/records/21058880)
 
 Community members can subscribe to different automated emails.
 
@@ -255,9 +275,6 @@ A data email once per week provides updated response totals and links to the dat
 A detailed log email once per day that contains the content of the daily log.
 An automated analysis email once per month that provides an automated blog style dive into the data.
 
-Daily email to Jason logs scripts events.  At the top: alerts if problems occur.  Examples: a script errors, the same respondent somehow responded more than once today.
-
-Emails are sent from this address: "the Ryerson Project <ryerson@jasonjones.ninja>"
 
 ## Best Practices to Follow
 

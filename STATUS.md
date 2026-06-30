@@ -5,11 +5,11 @@
 - Build and maintain momentum through small, deployable improvements.
 - Keep the website, scripts, and project structure clean enough for steady public development.
 - Build the next thin application slice without overcomplicating architecture.
-- Everywhere that automated emails are sent, use the authenticated SMTP workflow.  The current system often leads to emails marked as spam when sent through PHP mail.
+- Verify the Daily Admin Over Email feature in production after deployment.
 
 ## Next
 
-- Create an initial version of the Daily Email feature: one email per day sent to Dr. Jones with some descriptive statistics about what is in the database.
+- Create a static HTML page that will be used to recruit alpha testers.  This page lives at https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/alpha-testing.html.  It is not linked from the rest of the site.  Instead, Dr. Jones will distribute it through emails and social media posts to recruit qualified Community Members to be alpha testers.
 
 ## Later
 
@@ -52,60 +52,10 @@
 - Added nightly Item Retiering: Community Elo is recalculated from completed UTC-day Item Bakeoff results and active items are assigned to score-based tiers.
 - Added a dependency-free authenticated SMTP mail sender for community invitation and suggested item moderation emails.
 - Added an admin SMTP test page for sending one test message and checking SPF, DKIM and DMARC in the recipient mailbox.
+- Added the Daily Admin Over Email feature: a protected admin overview page can send project count emails manually, and a Python script can trigger the page from cron.
 
 ## Known Risks
 
 - Several public pages still contain placeholder content.
 - Production PHP is on version 7.2, so future PHP code must stay compatible with that baseline unless hosting changes.
 - Local development environment does not currently include the PHP CLI, so PHP syntax checks must be run on a PHP-equipped machine or production-like host.
-
-### Outstanding DKIM Issue
-
-  Ryerson invitation email now has the correct envelope sender and SPF passes:
-
-  - `Return-Path: <ryerson@jasonjones.ninja>`
-  - `SPF: PASS`
-
-  However, Gmail still reports:
-
-  - `DKIM: FAIL with domain jasonjones.ninja`
-
-  DNS appears to contain a DKIM TXT record:
-
-  ```bash
-  dig TXT default._domainkey.jasonjones.ninja +short
-
-  returns a visible v=DKIM1; k=rsa; p=... public key.
-
-  The domain’s nameservers are:
-
-  dns1.namecheaphosting.com
-
-  So the issue is probably not a missing DNS record. The likely problem is that the production mail server/Exim is either:
-
-  1. Not DKIM-signing PHP-generated mail correctly for jasonjones.ninja, or
-  2. Signing with a private key that does not match the published default._domainkey.jasonjones.ninja public key, or
-  3. Using a different DKIM selector than default.
-
-  Next checks:
-
-  1. Inspect the failed email’s DKIM-Signature header and confirm:
-
-     d=jasonjones.ninja
-     s=default
-
-  2. In cPanel:
-      - Go to Email → Email Deliverability
-      - Open jasonjones.ninja
-      - Use Repair or regenerate DKIM if offered
-      - Confirm the displayed DKIM TXT record matches DNS
-
-  3. If DKIM still fails, ask Namecheap/cPanel support:
-
-  PHP mail from my cPanel account is now sending with Return-Path ryerson@jasonjones.ninja and SPF passes. DNS has a visible DKIM TXT record at default._domainkey.jasonjones.ninja, but Gmail reports DKIM FAIL
-  for d=jasonjones.ninja. Please verify that Exim is DKIM-signing PHP-generated mail for jasonjones.ninja using the private key that matches the published default._domainkey public key. Also please confirm
-  which DKIM selector Exim is using for this domain.
-
-  Ryerson now has an authenticated SMTP sender in code.  The remaining production step is to configure
-  `RYERSON_SMTP_*` in the production `.env`, send a message from the admin SMTP test page, and inspect
-  the received Gmail original headers for SPF, DKIM, and DMARC PASS.

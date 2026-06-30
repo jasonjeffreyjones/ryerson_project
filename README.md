@@ -30,7 +30,7 @@ It currently:
 Dynamic features under `website/` are PHP files that run on the production server:
 
 - `website/participate_submit.php`: saves waiting list requests
-- `website/admin/`: protected administration interface, waiting list review page, and response export tool
+- `website/admin/`: protected administration interface, waiting list review page, response export tool, and daily Admin Overview email page
 - `website/member/`: ORCID-only community member login, invitation acceptance, and member home
 - `website/member/suggest-item.php`: member suggested item submission form
 - `website/member/item-bakeoff.php`: member item bakeoff voting interface
@@ -93,7 +93,7 @@ Set these variables locally before using community member invitations or ORCID l
 - `RYERSON_SMTP_EHLO_HOST`, optional, usually `jasonjones.ninja`
 - `RYERSON_SMTP_TIMEOUT_SECONDS`, optional, defaults to `20`
 - `RYERSON_SMTP_TEST_TO`, optional default recipient for the admin SMTP test page
-- `RYERSON_DAILY_EMAIL_TO`, recipient for the future Daily Email feature
+- `RYERSON_DAILY_EMAIL_TO`, optional recipient for the daily Admin Overview email, defaults to `jason.j.jones@stonybrook.edu`
 - `RYERSON_INVITATION_TTL_DAYS`, defaults to `30`
 - `RYERSON_ORCID_BASE_URL`, usually `https://orcid.org`
 - `RYERSON_ORCID_API_BASE_URL`, usually `https://pub.orcid.org`
@@ -152,6 +152,15 @@ Useful options for `python/ryerson_project_create_prolific_study.py` include `--
 `python/ryerson_project_retier_items.py` calls the protected production Item Retiering endpoint.
 It uses `RYERSON_ADMIN_USERNAME` and `RYERSON_ADMIN_PASSWORD` and is intended to run shortly after
 the UTC day closes.
+
+`python/ryerson_project_send_daily_admin_overview.py` calls the protected production Admin Overview
+endpoint and sends the daily count email through the configured SMTP sender. It uses
+`RYERSON_ADMIN_USERNAME` and `RYERSON_ADMIN_PASSWORD` and is intended to run daily at 00:10 UTC.
+Example cron entry:
+
+```cron
+10 0 * * * cd /path/to/ryerson_project && /usr/bin/python3 python/ryerson_project_send_daily_admin_overview.py
+```
 
 Set `RYERSON_PROLIFIC_API_TOKEN` and `RYERSON_PROLIFIC_PROJECT_ID` locally before running `python/ryerson_project_pull_demographic_exports.py`.
 That script matches Prolific studies by the daily internal name format `Ryerson YYYY-MM-DD`.
