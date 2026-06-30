@@ -85,9 +85,9 @@ function ryerson_community_member_session_cookie_params(): array
 	return [
 		'lifetime' => RYERSON_MEMBER_SESSION_LIFETIME_SECONDS,
 		'path' => '/',
+		'domain' => '',
 		'secure' => ryerson_community_member_session_cookie_secure(),
 		'httponly' => true,
-		'samesite' => 'Lax',
 	];
 }
 
@@ -98,20 +98,29 @@ function ryerson_community_refresh_member_session_cookie(): void
 	}
 
 	$params = ryerson_community_member_session_cookie_params();
-	setcookie(session_name(), session_id(), [
-		'expires' => time() + RYERSON_MEMBER_SESSION_LIFETIME_SECONDS,
-		'path' => (string) $params['path'],
-		'secure' => (bool) $params['secure'],
-		'httponly' => (bool) $params['httponly'],
-		'samesite' => (string) $params['samesite'],
-	]);
+	setcookie(
+		session_name(),
+		session_id(),
+		time() + RYERSON_MEMBER_SESSION_LIFETIME_SECONDS,
+		(string) $params['path'],
+		(string) $params['domain'],
+		(bool) $params['secure'],
+		(bool) $params['httponly']
+	);
 }
 
 function ryerson_community_start_member_session(): void
 {
 	if (session_status() !== PHP_SESSION_ACTIVE) {
 		ini_set('session.gc_maxlifetime', (string) RYERSON_MEMBER_SESSION_LIFETIME_SECONDS);
-		session_set_cookie_params(ryerson_community_member_session_cookie_params());
+		$params = ryerson_community_member_session_cookie_params();
+		session_set_cookie_params(
+			(int) $params['lifetime'],
+			(string) $params['path'],
+			(string) $params['domain'],
+			(bool) $params['secure'],
+			(bool) $params['httponly']
+		);
 		session_start();
 	}
 
