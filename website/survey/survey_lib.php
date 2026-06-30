@@ -7,7 +7,7 @@ require_once __DIR__ . '/../lib/ryerson_bootstrap.php';
 const RYERSON_ITEMS_TO_PRESENT = 36;
 const RYERSON_TIERS = [10, 20, 30, 40];
 const RYERSON_ITEMS_PER_TIER = 9;
-const RYERSON_TIER_40_QUEUE_WINDOW = 72;
+const RYERSON_TIER_40_SCORE_WINDOW = 72;
 
 function ryerson_html(string $value): string
 {
@@ -195,11 +195,9 @@ function ryerson_fetch_tier_40_items(mysqli $mysqli): array
 			FROM survey_items
 			WHERE is_active = 1 AND current_tier = 40
 			ORDER BY
-				CASE WHEN tier_queue_position IS NULL THEN 1 ELSE 0 END,
-				tier_queue_position ASC,
-				created_at_utc DESC,
-				survey_item_id DESC
-			LIMIT ' . RYERSON_TIER_40_QUEUE_WINDOW . '
+				current_community_score DESC,
+				survey_item_id ASC
+			LIMIT ' . RYERSON_TIER_40_SCORE_WINDOW . '
 		) AS tier_40_window
 		ORDER BY RAND()
 		LIMIT ' . RYERSON_ITEMS_PER_TIER;

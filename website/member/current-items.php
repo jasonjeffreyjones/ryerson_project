@@ -24,7 +24,7 @@ function ryerson_member_current_items_like_pattern(string $search): string
 function ryerson_member_fetch_current_items(mysqli $mysqli, string $search): array
 {
 	$sql = '
-		SELECT survey_item_id, statement_text, current_tier, tier_queue_position
+		SELECT survey_item_id, statement_text, current_tier, current_community_score
 		FROM survey_items
 		WHERE is_active = 1
 	';
@@ -37,8 +37,7 @@ function ryerson_member_fetch_current_items(mysqli $mysqli, string $search): arr
 	$sql .= '
 		ORDER BY
 			current_tier ASC,
-			CASE WHEN tier_queue_position IS NULL THEN 1 ELSE 0 END,
-			tier_queue_position ASC,
+			current_community_score DESC,
 			survey_item_id ASC
 	';
 
@@ -56,7 +55,7 @@ function ryerson_member_fetch_current_items(mysqli $mysqli, string $search): arr
 		throw new RuntimeException('Could not execute current items query.');
 	}
 
-	if (!$statement->bind_result($surveyItemId, $statementText, $currentTier, $tierQueuePosition)) {
+	if (!$statement->bind_result($surveyItemId, $statementText, $currentTier, $currentCommunityScore)) {
 		$statement->close();
 		throw new RuntimeException('Could not bind current item results.');
 	}
@@ -67,7 +66,7 @@ function ryerson_member_fetch_current_items(mysqli $mysqli, string $search): arr
 			'survey_item_id' => (int) $surveyItemId,
 			'statement_text' => (string) $statementText,
 			'current_tier' => (int) $currentTier,
-			'tier_queue_position' => $tierQueuePosition === null ? null : (int) $tierQueuePosition,
+			'current_community_score' => (float) $currentCommunityScore,
 		];
 	}
 
@@ -184,7 +183,7 @@ try {
                 </span>
               </td>
               <td><?php echo ryerson_community_html((string) $item['statement_text']); ?></td>
-              <td><span class="text-muted">Not yet scored</span></td>
+              <td class="text-end"><?php echo ryerson_community_html(number_format((float) $item['current_community_score'], 1)); ?></td>
               <td><button class="btn btn-sm btn-outline-secondary" type="button" disabled>Promote</button></td>
             </tr>
             <?php endforeach; ?>

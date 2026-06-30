@@ -94,7 +94,10 @@ function ryerson_admin_render_header(string $title): void
         <a class="btn btn-sm btn-outline-secondary" href="index.php">Admin Home</a>
         <a class="btn btn-sm btn-outline-secondary" href="waiting_list.php">Waiting List</a>
         <a class="btn btn-sm btn-outline-secondary" href="suggested_items.php">Suggested Items</a>
+        <a class="btn btn-sm btn-outline-secondary" href="item_bakeoffs.php">Item Bakeoffs</a>
+        <a class="btn btn-sm btn-outline-secondary" href="items_retier.php">Item Retiering</a>
         <a class="btn btn-sm btn-outline-secondary" href="responses_export.php">Response Exports</a>
+        <a class="btn btn-sm btn-outline-secondary" href="smtp_test.php">SMTP Test</a>
       </nav>
 HTML;
 }

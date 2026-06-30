@@ -389,7 +389,7 @@ function ryerson_admin_create_invitation(mysqli $mysqli, int $waitingListRequest
 
 	return [
 		'sent' => false,
-		'message' => 'Invitation was created, but PHP mail() reported a delivery failure.',
+		'message' => 'Invitation was created, but SMTP reported a delivery failure.',
 	];
 }
 

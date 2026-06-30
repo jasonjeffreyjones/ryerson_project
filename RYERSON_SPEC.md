@@ -48,7 +48,7 @@ Tier 20 items are meant to be delivered to half of total respondents per day.  I
 
 Tier 30 items are meant to be delivered to one-quarter of total respondents per day.  In the database, there will be at least ITEMS_TO_PRESENT / TIERS Tier 30 items and at most 4 x (ITEMS_TO_PRESENT / TIERS) Tier 30 items.  At the moment, this constraint is manually met and enforced by Dr. Jones.  Look for ways to enforce and support this constraint in code; make suggestions, but do not slow down development momentum.
 
-Tier 40 items are in a queue.  For each respondent, choose ITEMS_TO_PRESENT / TIERS items from among the top 8 x (ITEMS_TO_PRESENT / TIERS) Tier 40 items.  Once per day, the items will be resorted and retiered based on community payments, community voting and queuing.   
+There may be unlimited Tier 40 items.  For each respondent, choose ITEMS_TO_PRESENT / TIERS items from among the top 8 x (ITEMS_TO_PRESENT / TIERS) scoring Tier 40 items.  Once per day, the items will be resorted and retiered based on community payments and community voting.   
 
 It is okay and expected that two respondents from the same day have not exactly the same set of items.  Also, the order of items should be a random permutation of the selected items.
 
@@ -203,6 +203,40 @@ Cost is 100 NEDbucks for this service: Next-day promotion of chosen item to Tier
 
 Cost is 10 NEDbucks for this service: Next-day promotion of chosen item to Tier 30. Guaranteed minimum one-quarter of total respondents per day, and run for 30 days.  Then demoted to Tier 40 unless further payment is made.
 
+### Item Bakeoff Details
+
+Once per day, all items are re-sorted into Tiers.  One component of the sorting is Community Member preference.  Community Member preference is an Elo score calculated from temporally discounted head-to-head Item comparisons.  A cron job will call a Python script to kick off the resorting.  The nightly re-sort will be scheduled to run shortly after midnight UTC, e.g. 00:05 UTC, and includes all valid Bakeoff results with timestamps before 00:00 UTC.
+
+There is a Bakeoff page available only to logged in active Community Members.  The page has a simple bakeoff interface: one Item on the left versus one Item on the right.  Within a pair of Items, the assignment to left or right is random.
+
+The bakeoff page presents two active Items, chosen at random with conditions:
+- Prefer Items with fewer recent Bakeoff appearances.
+- Prefer Items with higher ranking uncertainty.
+- Avoid exact pair repeats for the same Member on the same UTC day.
+- Avoid Item repeats within the Member's first 20 daily submissions where possible.  In other words, it is desirable that a Member sees 40 unique Items within their first 20 bakeoffs.  If fewer than 40 eligible Items are available, the no-repeat rule is relaxed only as necessary.
+- the same Member never sees the same exact Item pairing twice in one day.
+- The system should attempt to balance exposure so that Items receive roughly comparable numbers of Bakeoff appearances over time.
+
+The Community Member may click on one Item or the other.  They click in response to the instruction: "Click on the Item you prefer to be prioritized higher. Choose one. Close calls are expected."  Upon clicking on one Item, it is recorded: which Member, each Item presented, which Item the Member chose and a timestamp.  It is important that each Member is limited to 100 bakeoff choices per day maximum.  It is important that Members must use the interface to choose and not tamper with the IDs as chosen by the system.  We must avoid an over-enthusiastic Community Member from stuffing the ballot for their Item of choice.
+
+Each Member may submit 100 Bakeoff results per day maximum.  All Bakeoff timestamps are stored in UTC. Daily limits are calculated by UTC calendar day. The nightly re-sort runs just after the UTC day closes.  If a user is submitting bakeoff choices around midnight UTC, they may notice their count toward the 100 limit reset to zero, and that is as desired.
+
+During the re-sort, each item receives a temporally discounted Elo score.  The discount function is simple rather than smooth.  Any Bakeoff match result 366 days old or older counts with weight 1.0 only.  A Bakeoff match result from within the last 24 hours counts with weight 100.0.  A Bakeoff match that is less than 366 days old AND more than 365 days old counts with weight 2.0.  Use a **linear** discount for match results between 1 and 365 days old.  Use a small number of constants so the discounting might be easily adjusted if needed in the future.  The intent is that match results never fade completely to zero, but newer match results are more important for tomorrow's Item ranking.
+
+By "weight" above, I mean treat matches with this relative value.  I used integers for clarity, but you can scale within a 0.0 to 1.0 range if that is necessary.  The Elo score is intended to fall within reasonable, usual ranges.  Those familiar with chess Elo scores should understand.
+
+All item Elo scores are recomputed from scratch during the nightly job.  Initial Elo for every active Item is INITIAL_ELO.  Bakeoff records are processed from oldest to newest by timestamp, with a deterministic tie-breaker using bakeoff_result_id.
+
+### Nightly Retiering of Items
+
+On the production web server there is a PHP script that modifies current_tier and current_community_score.  The PHP script lives in admin/ and is named items_retier.php.  Specifically, here is what the script does:
+1. Recalculate the Community Elo Score for every active item.  Community Elo Score is calculated from Item Bakeoff results; newer wins and losses affect the score more than older wins and losses.  The recalculated score of each item is stored in the database.
+2. Re-assign Items to Tiers.  The highest rated items fill the top tiers.  Currently, Tier 10 is the topmost.  The section `Details: Collect respondents' responses to survey items` in this document describes tiering and tier sizes.  Fill each Tier to max items before moving to the next.  For instance, there should be 2 x (ITEMS_TO_PRESENT / TIERS) Tier 20 items before there are any Tier 30 items.  Within Tier 40, there may be unlimited items.  Only some items in Tier 40 are eligible for presentation in the survey (as described elsewhere).  It is okay and expected that some Tier 40 items will not be presented in the survey.
+3. Future functionality will allow Community Members to use NEDbucks to promote Items to any Tier, regardless of community score.  items_retier.php will implement this later.
+
+An administrator can manually run items_retier.php from admin/index.php.  However, the expected functionality is that a cron job on the AWS automation server will run a Python script that visits items_retier.php.  This is similar to the way response exports are generated once daily.
+
+
 ## Administration Interface
 
 An interface for human administration exists in admin/  The main interface is admin/index.php.  For now, Dr. Jones is the only one who may access the administration interface.  The admin/ directory is behind HTTPS authentication.
@@ -240,7 +274,6 @@ Let's keep track of what is Now, Next, Later and Done using STATUS.md
 In R code, use tidyverse conventions for all data work.
 
 Include a file that illustrates which cron jobs run to make the system work.
-
 In code and data, dates in YYYY-MM-DD format always.  Exceptions are OK for visualizations, e.g. Mar\n2026 on an axis label.
 
 Every day gets one log file.  Each script writes to the daily log any error messages or hopefully its successful completion message.

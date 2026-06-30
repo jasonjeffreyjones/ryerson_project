@@ -5,9 +5,7 @@
 - Build and maintain momentum through small, deployable improvements.
 - Keep the website, scripts, and project structure clean enough for steady public development.
 - Build the next thin application slice without overcomplicating architecture.
-- Under the Join Waiting List form on participate.html, add: Already a Member?  Log in.  This takes user to log in with ORCID.
-- The link from Current Items on the Community Member page should go to a page for viewing items.  Let's implement that page per the specification.  Viewing items and limiting by keyword should work now.  It is okay to stub other functions that are not yet fully specified, such as promote with NEDbucks.
-- Let's delay Search items on Results implementation for now.  In the HTML template for results.html, comment out the Search section and its TODO text.  It is okay that appears in View Page Source in production.
+- Everywhere that automated emails are sent, use the authenticated SMTP workflow.  The current system often leads to emails marked as spam when sent through PHP mail.
 
 ## Next
 
@@ -49,6 +47,11 @@
 - Added member Suggested Item submission with one suggestion per member per UTC day.
 - Added admin Suggested Items review with edit, approve, reject, and member notification emails.
 - Approved Suggested Items now become active Tier 40 survey items with future queue logic left unset.
+- In the Community Members interface, Members may view Current Items and filter by keyword.
+- Added the first Item Bakeoff slice: active members can choose between paired active items, choices are stored with a 100 per UTC day limit, and admin can review bakeoff activity.
+- Added nightly Item Retiering: Community Elo is recalculated from completed UTC-day Item Bakeoff results and active items are assigned to score-based tiers.
+- Added a dependency-free authenticated SMTP mail sender for community invitation and suggested item moderation emails.
+- Added an admin SMTP test page for sending one test message and checking SPF, DKIM and DMARC in the recipient mailbox.
 
 ## Known Risks
 
@@ -103,4 +106,6 @@
   for d=jasonjones.ninja. Please verify that Exim is DKIM-signing PHP-generated mail for jasonjones.ninja using the private key that matches the published default._domainkey public key. Also please confirm
   which DKIM selector Exim is using for this domain.
 
-  If support cannot fix DKIM for PHP-generated mail, the better long-term solution is to switch Ryerson from PHP mail() to authenticated SMTP using ryerson@jasonjones.ninja.
+  Ryerson now has an authenticated SMTP sender in code.  The remaining production step is to configure
+  `RYERSON_SMTP_*` in the production `.env`, send a message from the admin SMTP test page, and inspect
+  the received Gmail original headers for SPF, DKIM, and DMARC PASS.

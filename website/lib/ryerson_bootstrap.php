@@ -6,6 +6,7 @@ const WAITING_LIST_TABLE_NAME = 'waiting_list_requests';
 const COMMUNITY_MEMBERS_TABLE_NAME = 'community_members';
 const COMMUNITY_INVITATIONS_TABLE_NAME = 'community_invitations';
 const SUGGESTED_ITEMS_TABLE_NAME = 'suggested_items';
+const ITEM_BAKEOFF_RESULTS_TABLE_NAME = 'item_bakeoff_results';
 define('DEFAULT_ENV_PATH', dirname(__DIR__, 2) . '/.env');
 
 function load_env_file(): void

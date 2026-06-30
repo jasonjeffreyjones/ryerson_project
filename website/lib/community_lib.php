@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/ryerson_bootstrap.php';
+require_once __DIR__ . '/mail_lib.php';
 
 const RYERSON_INITIAL_NEDBUCKS_BALANCE = 10;
 const RYERSON_DEFAULT_INVITATION_TTL_DAYS = 30;
@@ -343,31 +344,18 @@ function ryerson_community_orcid_authorization_url(string $state): string
 
 function ryerson_community_send_invitation_email(string $emailAddress, string $token): bool
 {
-	$fromAddress = get_required_env_value('RYERSON_MAIL_FROM');
-	$replyToAddress = get_optional_env_value('RYERSON_MAIL_REPLY_TO', $fromAddress);
-	$envelopeSender = ryerson_community_mailbox_from_header($fromAddress);
 	$link = ryerson_community_site_base_url() . '/member/accept-invitation.php?token=' . rawurlencode($token);
 	$subject = 'Invitation to join the Ryerson Project community';
 	$message = "You have been invited to join the Ryerson Project community.\n\n";
 	$message .= "To create your member account, use this invitation link:\n{$link}\n\n";
 	$message .= "You will be asked to sign in with ORCID. The ORCID account must match the ORCID URL submitted with your waiting list request.\n\n";
 	$message .= "If you did not request this invitation, you can ignore this email.\n";
-	$headers = [
-		'From: ' . $fromAddress,
-		'Reply-To: ' . $replyToAddress,
-		'MIME-Version: 1.0',
-		'Content-Type: text/plain; charset=UTF-8',
-		'X-Mailer: PHP/' . phpversion(),
-	];
 
-	return mail($emailAddress, $subject, $message, implode("\r\n", $headers), '-f ' . $envelopeSender);
+	return ryerson_mail_send_text($emailAddress, $subject, $message);
 }
 
 function ryerson_community_send_suggestion_moderation_email(array $member, string $status, string $statementText, string $rejectionReason): bool
 {
-	$fromAddress = get_required_env_value('RYERSON_MAIL_FROM');
-	$replyToAddress = get_optional_env_value('RYERSON_MAIL_REPLY_TO', $fromAddress);
-	$envelopeSender = ryerson_community_mailbox_from_header($fromAddress);
 	$emailAddress = (string) $member['email_address'];
 	$displayName = (string) $member['display_name'];
 	$subject = $status === 'approved'
@@ -387,29 +375,7 @@ function ryerson_community_send_suggestion_moderation_email(array $member, strin
 	}
 	$message .= "Thank you for helping build the Ryerson Project.\n";
 
-	$headers = [
-		'From: ' . $fromAddress,
-		'Reply-To: ' . $replyToAddress,
-		'MIME-Version: 1.0',
-		'Content-Type: text/plain; charset=UTF-8',
-		'X-Mailer: PHP/' . phpversion(),
-	];
-
-	return mail($emailAddress, $subject, $message, implode("\r\n", $headers), '-f ' . $envelopeSender);
-}
-
-function ryerson_community_mailbox_from_header(string $headerAddress): string
-{
-	$headerAddress = trim($headerAddress);
-	if (preg_match('/<([^<>]+)>/', $headerAddress, $matches) === 1) {
-		$headerAddress = trim((string) $matches[1]);
-	}
-
-	if (filter_var($headerAddress, FILTER_VALIDATE_EMAIL) === false) {
-		throw new RuntimeException('RYERSON_MAIL_FROM must contain a valid email address.');
-	}
-
-	return $headerAddress;
+	return ryerson_mail_send_text($emailAddress, $subject, $message);
 }
 
 function ryerson_community_fetch_pending_invitation_by_token(mysqli $mysqli, string $token): array

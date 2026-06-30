@@ -33,7 +33,9 @@ Dynamic features under `website/` are PHP files that run on the production serve
 - `website/admin/`: protected administration interface, waiting list review page, and response export tool
 - `website/member/`: ORCID-only community member login, invitation acceptance, and member home
 - `website/member/suggest-item.php`: member suggested item submission form
+- `website/member/item-bakeoff.php`: member item bakeoff voting interface
 - `website/admin/suggested_items.php`: admin review page for suggested items
+- `website/admin/item_bakeoffs.php`: admin item bakeoff activity summary
 - `website/survey/`: Prolific-facing survey flow that saves responses
 - `website/demo-survey/`: public survey demonstration that does not save responses
 
@@ -79,8 +81,19 @@ Set `RYERSON_PROLIFIC_COMPLETION_CODE` locally. The Prolific study creation scri
 Set these variables locally before using community member invitations or ORCID login:
 
 - `RYERSON_SITE_BASE_URL`, for example `https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project`
-- `RYERSON_MAIL_FROM`
+- `RYERSON_MAIL_FROM`, for example `Ryerson Project <ryerson@jasonjones.ninja>`
 - `RYERSON_MAIL_REPLY_TO`, optional but recommended
+- `RYERSON_MAIL_RETURN_PATH`, defaults to the email address from `RYERSON_MAIL_FROM`
+- `RYERSON_MAIL_MESSAGE_ID_DOMAIN`, optional, usually `jasonjones.ninja`
+- `RYERSON_SMTP_HOST`
+- `RYERSON_SMTP_PORT`, usually `465` for SSL or `587` for STARTTLS
+- `RYERSON_SMTP_ENCRYPTION`, one of `ssl`, `tls`, `starttls`, or `none`
+- `RYERSON_SMTP_USERNAME`
+- `RYERSON_SMTP_PASSWORD`
+- `RYERSON_SMTP_EHLO_HOST`, optional, usually `jasonjones.ninja`
+- `RYERSON_SMTP_TIMEOUT_SECONDS`, optional, defaults to `20`
+- `RYERSON_SMTP_TEST_TO`, optional default recipient for the admin SMTP test page
+- `RYERSON_DAILY_EMAIL_TO`, recipient for the future Daily Email feature
 - `RYERSON_INVITATION_TTL_DAYS`, defaults to `30`
 - `RYERSON_ORCID_BASE_URL`, usually `https://orcid.org`
 - `RYERSON_ORCID_API_BASE_URL`, usually `https://pub.orcid.org`
@@ -92,8 +105,16 @@ Register the exact ORCID redirect URI in the ORCID developer settings before tes
 The community flow expects the `community_members`, `community_invitations`, and `suggested_items` tables from `sql/`.
 Approving a waiting list request performs a strict public ORCID record check before sending an invitation.
 Invitation tokens are single-use and only their SHA-256 hashes are stored in the database.
+Community invitation and suggested item moderation emails are sent through authenticated SMTP.
+Use `website/admin/smtp_test.php` to send one test email, then inspect the received message headers
+and confirm SPF, DKIM, and DMARC pass before sending production invitations.
 Members may submit one suggested item per UTC day. Admin-approved suggestions become active Tier 40
-rows in `survey_items` with `tier_queue_position` left `NULL` for future queue logic.
+rows in `survey_items`.
+Item Bakeoff voting requires `sql/create_item_bakeoff_results.sql`. Active members may submit up
+to 100 bakeoff choices per UTC day.
+Item Retiering requires `sql/alter_survey_items_for_community_score.sql`. The admin retiering page
+and `python/ryerson_project_retier_items.py` recalculate Community Elo from completed UTC-day
+bakeoffs and update item tiers.
 
 Set the Prolific recruitment variables locally before running `python/ryerson_project_create_prolific_study.py`:
 
@@ -127,6 +148,10 @@ and the blocklist filter pattern at `https://docs.prolific.com/documentation/cor
 
 Useful options for `python/ryerson_project_create_prolific_study.py` include `--dry-run` and
 `--sync-cooldown-only`.
+
+`python/ryerson_project_retier_items.py` calls the protected production Item Retiering endpoint.
+It uses `RYERSON_ADMIN_USERNAME` and `RYERSON_ADMIN_PASSWORD` and is intended to run shortly after
+the UTC day closes.
 
 Set `RYERSON_PROLIFIC_API_TOKEN` and `RYERSON_PROLIFIC_PROJECT_ID` locally before running `python/ryerson_project_pull_demographic_exports.py`.
 That script matches Prolific studies by the daily internal name format `Ryerson YYYY-MM-DD`.

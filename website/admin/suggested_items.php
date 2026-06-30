@@ -150,13 +150,12 @@ function ryerson_admin_insert_approved_survey_item(mysqli $mysqli, string $state
 		INSERT INTO survey_items (
 			statement_text,
 			current_tier,
-			tier_queue_position,
 			is_active,
 			created_by_member_id,
 			tier_started_on,
 			notes_internal
 		)
-		VALUES (?, ?, NULL, ?, ?, UTC_DATE(), ?)
+		VALUES (?, ?, ?, ?, UTC_DATE(), ?)
 	';
 	$statement = $mysqli->prepare($sql);
 	if ($statement === false) {

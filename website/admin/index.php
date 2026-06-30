@@ -22,6 +22,13 @@ try {
 	$suggestedItemsCountRow = $suggestedItemsCountResult->fetch_assoc();
 	$pendingSuggestedItemsCount = isset($suggestedItemsCountRow['total_count']) ? (int) $suggestedItemsCountRow['total_count'] : 0;
 	$suggestedItemsCountResult->close();
+	$itemBakeoffsTodayResult = $mysqli->query('SELECT COUNT(*) AS total_count FROM `' . ITEM_BAKEOFF_RESULTS_TABLE_NAME . '` WHERE submitted_on = UTC_DATE()');
+	if ($itemBakeoffsTodayResult === false) {
+		throw new RuntimeException('Could not count today\'s item bakeoffs.');
+	}
+	$itemBakeoffsTodayRow = $itemBakeoffsTodayResult->fetch_assoc();
+	$itemBakeoffsTodayCount = isset($itemBakeoffsTodayRow['total_count']) ? (int) $itemBakeoffsTodayRow['total_count'] : 0;
+	$itemBakeoffsTodayResult->close();
 	$mysqli->close();
 
 	$exportStatus = ryerson_admin_get_response_export_status();
@@ -59,6 +66,25 @@ ryerson_admin_render_header('Ryerson Admin');
 
         <div class="col-md-6">
           <section class="border rounded p-3 h-100">
+            <h2 class="h4">Item Bakeoffs</h2>
+            <p class="mb-3"><?php echo ryerson_admin_html((string) $itemBakeoffsTodayCount); ?> choices submitted today.</p>
+            <a class="btn btn-primary" href="item_bakeoffs.php">View Item Bakeoffs</a>
+          </section>
+        </div>
+
+        <div class="col-md-6">
+          <section class="border rounded p-3 h-100">
+            <h2 class="h4">Item Retiering</h2>
+            <p class="mb-3">Recalculate Community Elo and assign active items to tiers.</p>
+            <form method="post" action="items_retier.php" class="d-inline">
+              <button type="submit" class="btn btn-primary">Run Retiering</button>
+            </form>
+            <a class="btn btn-outline-secondary" href="items_retier.php">View Retiering</a>
+          </section>
+        </div>
+
+        <div class="col-md-6">
+          <section class="border rounded p-3 h-100">
             <h2 class="h4">Response Exports</h2>
             <p class="mb-2">
               <?php echo ryerson_admin_html((string) count($exportStatus['existing_dates'])); ?>
@@ -74,6 +100,14 @@ ryerson_admin_render_header('Ryerson Admin');
               <button type="submit" class="btn btn-primary">Create Missing Exports</button>
             </form>
             <a class="btn btn-outline-secondary" href="responses_export.php">View Export Status</a>
+          </section>
+        </div>
+
+        <div class="col-md-6">
+          <section class="border rounded p-3 h-100">
+            <h2 class="h4">SMTP Test</h2>
+            <p class="mb-3">Send one authenticated SMTP test email and inspect SPF, DKIM, and DMARC results.</p>
+            <a class="btn btn-primary" href="smtp_test.php">Send SMTP Test</a>
           </section>
         </div>
       </div>
