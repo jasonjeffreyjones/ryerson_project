@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-session_start();
-
 require_once dirname(__DIR__) . '/lib/community_lib.php';
+
+ryerson_community_start_member_session();
 
 $token = isset($_GET['token']) ? trim((string) $_GET['token']) : '';
 if ($token === '' || preg_match('/^[a-f0-9]{64}$/', $token) !== 1) {

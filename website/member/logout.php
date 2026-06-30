@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-session_start();
+require_once dirname(__DIR__) . '/lib/community_lib.php';
 
-unset($_SESSION['ryerson_member_id']);
-unset($_SESSION['ryerson_member_orcid_id']);
-unset($_SESSION['ryerson_member_display_name']);
+ryerson_community_start_member_session();
+
+ryerson_community_clear_member_session();
 unset($_SESSION['ryerson_orcid_oauth_state']);
 unset($_SESSION['ryerson_orcid_oauth_mode']);
 unset($_SESSION['ryerson_pending_invitation_id']);

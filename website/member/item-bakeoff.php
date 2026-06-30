@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-session_start();
-
 require_once dirname(__DIR__) . '/lib/community_lib.php';
+
+ryerson_community_start_member_session();
 
 const RYERSON_ITEM_BAKEOFF_DAILY_LIMIT = 100;
 const RYERSON_ITEM_BAKEOFF_EARLY_NO_REPEAT_SUBMISSIONS = 20;

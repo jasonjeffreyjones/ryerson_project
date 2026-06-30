@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-session_start();
-
 require_once dirname(__DIR__) . '/lib/community_lib.php';
+
+ryerson_community_start_member_session();
 
 function ryerson_member_suggest_item_flash(string $type, string $message): void
 {

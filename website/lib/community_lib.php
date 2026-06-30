@@ -7,6 +7,7 @@ require_once __DIR__ . '/mail_lib.php';
 
 const RYERSON_INITIAL_NEDBUCKS_BALANCE = 10;
 const RYERSON_DEFAULT_INVITATION_TTL_DAYS = 30;
+const RYERSON_MEMBER_SESSION_LIFETIME_SECONDS = 604800;
 const RYERSON_ORCID_MINIMUM_PROFILE_AGE_DAYS = 180;
 const RYERSON_SUGGESTED_ITEM_MAX_LENGTH = 2000;
 
@@ -72,6 +73,49 @@ function ryerson_community_orcid_url(string $orcidId): string
 function ryerson_community_generate_token(): string
 {
 	return bin2hex(random_bytes(32));
+}
+
+function ryerson_community_member_session_cookie_secure(): bool
+{
+	return isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== '' && strtolower((string) $_SERVER['HTTPS']) !== 'off';
+}
+
+function ryerson_community_member_session_cookie_params(): array
+{
+	return [
+		'lifetime' => RYERSON_MEMBER_SESSION_LIFETIME_SECONDS,
+		'path' => '/',
+		'secure' => ryerson_community_member_session_cookie_secure(),
+		'httponly' => true,
+		'samesite' => 'Lax',
+	];
+}
+
+function ryerson_community_refresh_member_session_cookie(): void
+{
+	if (session_status() !== PHP_SESSION_ACTIVE || headers_sent()) {
+		return;
+	}
+
+	$params = ryerson_community_member_session_cookie_params();
+	setcookie(session_name(), session_id(), [
+		'expires' => time() + RYERSON_MEMBER_SESSION_LIFETIME_SECONDS,
+		'path' => (string) $params['path'],
+		'secure' => (bool) $params['secure'],
+		'httponly' => (bool) $params['httponly'],
+		'samesite' => (string) $params['samesite'],
+	]);
+}
+
+function ryerson_community_start_member_session(): void
+{
+	if (session_status() !== PHP_SESSION_ACTIVE) {
+		ini_set('session.gc_maxlifetime', (string) RYERSON_MEMBER_SESSION_LIFETIME_SECONDS);
+		session_set_cookie_params(ryerson_community_member_session_cookie_params());
+		session_start();
+	}
+
+	ryerson_community_refresh_member_session_cookie();
 }
 
 function ryerson_community_hash_token(string $token): string
@@ -487,11 +531,27 @@ function ryerson_community_set_member_session(array $member): void
 	$_SESSION['ryerson_member_id'] = (int) $member['community_member_id'];
 	$_SESSION['ryerson_member_orcid_id'] = (string) $member['orcid_id'];
 	$_SESSION['ryerson_member_display_name'] = (string) $member['display_name'];
+	$_SESSION['ryerson_member_expires_at'] = time() + RYERSON_MEMBER_SESSION_LIFETIME_SECONDS;
+	ryerson_community_refresh_member_session_cookie();
+}
+
+function ryerson_community_clear_member_session(): void
+{
+	unset($_SESSION['ryerson_member_id']);
+	unset($_SESSION['ryerson_member_orcid_id']);
+	unset($_SESSION['ryerson_member_display_name']);
+	unset($_SESSION['ryerson_member_expires_at']);
 }
 
 function ryerson_community_current_member(mysqli $mysqli): array
 {
 	if (!isset($_SESSION['ryerson_member_id'])) {
+		return [];
+	}
+
+	$expiresAt = isset($_SESSION['ryerson_member_expires_at']) ? (int) $_SESSION['ryerson_member_expires_at'] : 0;
+	if ($expiresAt > 0 && $expiresAt < time()) {
+		ryerson_community_clear_member_session();
 		return [];
 	}
 
@@ -530,6 +590,9 @@ function ryerson_community_current_member(mysqli $mysqli): array
 	}
 
 	$statement->close();
+	if (count($row) > 0) {
+		$_SESSION['ryerson_member_expires_at'] = time() + RYERSON_MEMBER_SESSION_LIFETIME_SECONDS;
+	}
 	return $row;
 }
 
