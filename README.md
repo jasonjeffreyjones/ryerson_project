@@ -6,6 +6,65 @@ This repository contains the source files for the Ryerson Project website at:
 
 <https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/>
 
+## Frequently Asked Questions
+
+### What is the Ryerson Project?
+
+The Ryerson Project is a semi-autonomous system to nowcast the attitudes, opinions and beliefs of American adults.
+
+New daily data is collected from samples of Americans responding to survey items. The items are chosen by a community of active social scientists.
+
+Results on the website are updated daily. The data is available publicly, freely and immediately.
+
+### I want to suggest survey items. I want a say in prioritizing items. How do I join the community?
+
+The Ryerson community of researchers will collaboratively compose and prioritize items for the daily omnibus survey.
+
+Join the waitlist at <https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/participate.html> to be notified when community features become available.
+
+Participation is limited to members of the research community. A non-empty ORCID profile older than 180 days is required.
+
+### Will you share the data?
+
+Of course, yes.
+
+Open data is a built-in feature of Social Science Dashboard Inators like this one.
+
+For all Ryerson Project data, visit the Download page at <https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/download.html>.
+
+## What Researchers Can Do Today
+
+- Join the Ryerson community waitlist through the public Participate page.
+- Experience the public demonstration survey without submitting saved responses.
+- Download the public canonical microdata file, monthly aggregate file, and all-time aggregate file.
+- Use Google Dataset-compatible metadata on the Download page to discover the public data.
+- Browse the daily Ranked by Agreement table for all observed survey items.
+- Open static item-level reports with all-time response distributions, descriptive statistics, item rank comparisons, monthly trends, and observed-period trend estimates.
+- Browse the Item Reports index generated from the canonical data.
+- Review Ryerson data versions mirrored to Zenodo.
+- Accept an invitation, create an ORCID-gated community account, and log in as an approved community member.
+- View a Member Home Page with member name and NEDbucks balance.
+- Submit one suggested survey item per UTC day as an approved community member.
+- View current survey items and filter them by keyword as an approved community member.
+- Complete item bakeoff choices as an approved community member, subject to the 100 choices per UTC day limit.
+- Use the deployed survey flow to collect Prolific respondent data and the demo survey flow to show the same experience publicly.
+
+## Future Features
+
+- Alpha tester recruitment page.
+- Full Results by Age analysis page with strongest positive and negative age-agreement correlations.
+- Search interface for item result pages.
+- Featured item module on the Ryerson Project home page.
+- Community discussion forum.
+- Prediction contest.
+- Member stats page showing individual and community action counts, percentiles, and histograms.
+- NEDbucks purchases.
+- NEDbucks-based guaranteed observation bundles and paid item promotion to higher tiers.
+- Promotion logic that temporarily overrides score-based tiers.
+- More advanced item bakeoff pairing based on recent appearances, ranking uncertainty, no-repeat constraints, and exposure balancing.
+- Daily emails beyond the current admin overview email.
+- Full community participation features described in `RYERSON_SPEC.md`.
+
 ## Repository Structure
 
 - `RYERSON_SPEC.md`: project notes, roadmap, and product direction

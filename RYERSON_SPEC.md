@@ -134,7 +134,7 @@ There will be pages and sets of pages that display visualizations and present an
 
 ### Item Pages
 
-A directory named item-results/ will contain one HTML results page for each item.  Each page will be named with this template: ITEM_ID-FIRST_WORD-SECOND_WORD-THIRD_WORD.html.  ITEM_ID is the numeric id from the database.  FIRST_WORD is the first word from the text of the item that is not a stop word - SECOND_WORD and THIRD_WORD similarly.  Each item page is a static HTML page generated anew each day.  An index page on item-results/index.html will contain a link to each item page.
+A directory named item-results/ will contain one HTML results page for each item.  Each page will be named with this template: ITEM_ID-FIRST_WORD-SECOND_WORD-THIRD_WORD.html.  ITEM_ID is the numeric id from the database.  FIRST_WORD is the first word from the text of the item that is not a stop word --- SECOND_WORD and THIRD_WORD similarly.  Each item page is a static HTML page generated anew each day.  An index page on item-results/index.html will contain a link to each item page.
 
 An item page has the following format. The full text of the item appears in a sticky header.  An 11 bar histogram shows the all-time count of observed responses per each response option.  Descriptive statistics (also all-time) are displayed: mean, median, standard deviation, N, standard error.  A templated sentence explains: American adults' average (mean) response was ALL_TIME_MEAN on a scale of 0 (Disagree) to 10 (Agree).  ITEM_N responses have been collected (so far) from EARLIEST_OBS_DATE to MOST_RECENT_OBS_DATE.
 
@@ -142,7 +142,7 @@ If the item has 100 or more total observations, then a comparison to all other q
 
 A monthly trend visualization shows a stacked bar chart - one stacked bar per month.  The bars always total to 100%.  There are 11 bars showing the percentage of each month's total responses that each of the 11 possible values received.  Be aware that some response values can collect zero responses.  For instance, "I am a human" would have mostly high agreement and possibly no disagree values.  Monthly mean values are represented by a black dot horizontally centered within each bar.  Separate y-axis scales appear: percentage on left for the stacked bar chart and 0 to 10 on the right for the monthly mean points.  A path connects the monthly mean points.
 
-An annual trend section presents estimates for the annual trend (as long as the item has more than one observation date and 100 or more observations total).  Annual trend is estimated by OLS at the response level.  A templated paragraph presents the results: Observations suggest a trend of increasing|decreasing|unchanging agreement equally to ANNUAL_CHANGE_ESTIMATE per year.  Regression results place a 95% confidence interval around that estimate of \[CI_LOWER, CI_UPPER\].  The full regression table is placed in a pre tag but folded up unless the user clicks to see it.
+An annual trend estimation section presents estimates for the annual trend (as long as the item has more than one observation date and 100 or more observations total).  Annual trend is estimated by OLS at the response level.  A templated paragraph presents the results: Observations suggest a trend of increasing|decreasing|unchanging agreement equally to ANNUAL_CHANGE_ESTIMATE per year.  Regression results place a 95% confidence interval around that estimate of \[CI_LOWER, CI_UPPER\].  The full regression table is placed in a pre tag but folded up unless the user clicks to see it.
 
 ### Age Analyses
 
@@ -158,18 +158,17 @@ Similarly, five visualizations illustrate the five items where age and agreement
 
 On the Ryerson Project home page at https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/ there will be one featured item (in addition to the existing content). R/create_index_dictionary.R will create the appropriate content.  That script will run once per day.  See R/create_results_dictionary.R for a similar script.  A featured item will be randomly chosen from those items that meet this criterion: ITEM_N greater than equal to the median of all ITEM_N values.
 
-The featured item content on the home page is a subset of what you would find on the item page.  Specifically, an 11 bar histogram shows the all-time count of observed responses per each response option.  Descriptive statistics (also all-time) are displayed: mean, median, standard deviation, N, standard error.  A templated sentence explains: American adults' average (mean) response was ALL_TIME_MEAN on a scale of 0 (Disagree) to 10 (Agree).  ITEM_N responses have been collected (so far) from EARLIEST_OBS_DATE to MOST_RECENT_OBS_DATE.  See full results for *ITEM_TEXT*.  (*ITEM_TEXT* is a link to the item page.)
+The featured item content on the home page is a subset of what you would find on the item page.  Specifically, an 11 bar histogram shows the all-time count of observed responses per each response option.  Descriptive statistics (also all-time) are displayed: mean, median, standard deviation, N, standard error.  A templated sentence explains: American adults' average (mean) response was ALL_TIME_MEAN on a scale of 0 (Disagree) to 10 (Agree).  ITEM_N responses have been collected (so far) from EARLIEST_OBS_DATE to MOST_RECENT_OBS_DATE.  See full results for *ITEM_TEXT*.  (*ITEM_TEXT* is a link to the item page.)  There is a link to the featured item's page within item-results/.
 
 ## Details: Share the new analysis.
 
-On https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/results.html there will be a "Ranked by Agreement" table.  Primary columns are Rank,Agreement (all-time mean),Statement.  Additional columns (hidden in the interface unless expanded by user are N,Earliest Observation Date,Most Recent Observation Date).
+On https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/results.html there will be a "Ranked by Agreement" table.  Primary columns are Rank,Agreement (all-time mean),Statement,Total N,Report.  The Ranked by Agreement table contains the summarized results for all items ever observed.  R/create_results_dictionary.R will create the HTML table from the canonical microdata file.  That content will replace RANKED_BY_AGREEMENT_TABLE in the HTML template.
 
-At present, there will be one table containing the summarized results for all items ever observed.  R/create_results_dictionary.R will create the HTML table from the canonical microdata file.  That content will replace RANKED_BY_AGREEMENT_TABLE in the HTML template.
-
-In the future, the Ranked by Agreement will be a paginated table sortable on any column - but that is future functionality.
-
-Search on https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/results.html will remain TODO for now.
-
+The Ranked by Agreement table is the primary object on results.html.  However, there is also a navigation column to other Results pages.  Specifically there are links to:
+- item-results/index.html
+- results-by-age.html
+- search-item-results.html
+- download.html
 
 ## Community Features
 

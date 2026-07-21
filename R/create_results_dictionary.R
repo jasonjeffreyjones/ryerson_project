@@ -5,9 +5,6 @@ Sys.setenv(TZ = "UTC")
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(jsonlite))
 
-RESPONSE_VALUES <- 0:10
-
-
 script_path <- function() {
 	file_args <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
 	if (length(file_args) == 0) {
@@ -22,6 +19,9 @@ project_root <- function() {
 }
 
 
+source(file.path(project_root(), "R", "ryerson_item_helpers.R"))
+
+
 log_message <- function(message) {
 	print(sprintf("%s %s", format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"), message))
 }
@@ -32,22 +32,6 @@ required_columns <- function(data, columns, source_name) {
 	if (length(missing) > 0) {
 		stop(sprintf("%s is missing column(s): %s", source_name, paste(missing, collapse = ", ")))
 	}
-}
-
-
-html_escape <- function(value) {
-	value <- as.character(value)
-	value <- stringr::str_replace_all(value, "&", "&amp;")
-	value <- stringr::str_replace_all(value, "<", "&lt;")
-	value <- stringr::str_replace_all(value, ">", "&gt;")
-	value <- stringr::str_replace_all(value, '"', "&quot;")
-	value <- stringr::str_replace_all(value, "'", "&#39;")
-	value
-}
-
-
-format_count <- function(value) {
-	format(value, big.mark = ",", scientific = FALSE, trim = TRUE)
 }
 
 
@@ -93,8 +77,10 @@ build_ranked_results <- function(canonical_data) {
 		log_message(sprintf("Excluded %d row(s) with response_value outside 0 through 10 from ranked results.", invalid_count))
 	}
 
+	display_texts <- item_display_texts(valid_data)
+
 	valid_data %>%
-		group_by(survey_item_id, statement_text) %>%
+		group_by(survey_item_id) %>%
 		summarise(
 			agreement = mean(response_value, na.rm = TRUE),
 			n = n(),
@@ -102,8 +88,12 @@ build_ranked_results <- function(canonical_data) {
 			most_recent_observation_date = max(observation_date, na.rm = TRUE),
 			.groups = "drop"
 		) %>%
+		left_join(display_texts, by = "survey_item_id") %>%
 		arrange(desc(agreement), desc(n), statement_text, survey_item_id) %>%
-		mutate(rank = row_number())
+		mutate(
+			rank = row_number(),
+			item_page_filename = item_page_filename(survey_item_id, statement_text)
+		)
 }
 
 
@@ -121,30 +111,25 @@ build_result_row <- function(row) {
 	sprintf(
 		paste(
 			'<tr>',
-			'<td class="text-end">%s</td>',
-			'<td class="text-end">%s</td>',
-			'<td>',
-			'<div>%s</div>',
-			'</td>',
-			'<td>',
-			'<details class="mt-2">',
-			'<summary class="link-primary">Details</summary>',
-			'<dl class="row mb-0 mt-2 small text-body-secondary">',
-			'<dt class="col-sm-4">N</dt><dd class="col-sm-8">%s</dd>',
-			'<dt class="col-sm-4">Earliest Observation Date</dt><dd class="col-sm-8">%s</dd>',
-			'<dt class="col-sm-4">Most Recent Observation Date</dt><dd class="col-sm-8">%s</dd>',
-			'</dl>',
-			'</details>',
-			'</td>',
-			'</tr>',
-			sep = "\n"
+				'<td class="text-end">%s</td>',
+				'<td class="text-end">%s</td>',
+				'<td>',
+				'<div>%s</div>',
+				'</td>',
+				'<td class="text-end">',
+				'%s',
+				'</td>',
+				'<td>',
+				'<a href="item-results/%s">Report</a>',
+				'</td>',
+				'</tr>',
+				sep = "\n"
 		),
 		row$rank,
 		sprintf("%.2f", row$agreement),
 		html_escape(row$statement_text),
 		format_count(row$n),
-		html_escape(row$earliest_observation_date),
-		html_escape(row$most_recent_observation_date)
+		html_escape(row$item_page_filename)
 	)
 }
 
@@ -167,7 +152,8 @@ build_ranked_table <- function(results_data) {
 		'<th scope="col" class="text-end">Rank</th>',
 		'<th scope="col" class="text-end">Agreement</th>',
 		'<th scope="col">Statement</th>',
-		'<th scope="col">Details</th>',
+		'<th scope="col" class="text-end">Total N</th>',
+		'<th scope="col">Report</th>',
 		'</tr>',
 		'</thead>',
 		'<tbody>',

@@ -5,7 +5,6 @@
 - Build and maintain momentum through small, deployable improvements.
 - Keep the website, scripts, and project structure clean enough for steady public development.
 - Build the next thin application slice without overcomplicating architecture.
-- Verify the Daily Admin Over Email feature in production after deployment.
 
 ## Next
 
@@ -53,6 +52,8 @@
 - Added a dependency-free authenticated SMTP mail sender for community invitation and suggested item moderation emails.
 - Added an admin SMTP test page for sending one test message and checking SPF, DKIM and DMARC in the recipient mailbox.
 - Added the Daily Admin Over Email feature: a protected admin overview page can send project count emails manually, and a Python script can trigger the page from cron.
+- Implemented static Item Pages generated daily from one item template and per-item JSON dictionaries.
+- Updated the Results page table to link directly to Item Reports and added Results navigation with stubs for age analysis and item search.
 
 ## Known Risks
 
