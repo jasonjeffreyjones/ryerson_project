@@ -78,7 +78,7 @@ $nedbucksBalance = $isLoggedIn ? (int) $member['nedbucks_balance'] : 0;
         <div class="col-md-6 col-lg-4">
           <section class="border rounded p-3 h-100">
             <h2 class="h5">Member Stats</h2>
-            <button class="btn btn-outline-secondary" type="button" disabled>Coming Soon</button>
+            <a class="btn btn-primary" href="../member-stats/<?php echo ryerson_community_html((string) $member['community_member_id']); ?>.html" target="_blank" rel="noopener">View Public Stats</a>
           </section>
         </div>
         <div class="col-md-6 col-lg-4">

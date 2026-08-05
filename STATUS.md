@@ -5,6 +5,7 @@
 - Build and maintain momentum through small, deployable improvements.
 - Keep the website, scripts, and project structure clean enough for steady public development.
 - Build the next thin application slice without overcomplicating architecture.
+- Apply the Community Member last-login migration to production, deploy the public statistics slice, and verify its daily cron run.
 
 ## Next
 
@@ -54,9 +55,12 @@
 - Added the Daily Admin Over Email feature: a protected admin overview page can send project count emails manually, and a Python script can trigger the page from cron.
 - Implemented static Item Pages generated daily from one item template and per-item JSON dictionaries.
 - Updated the Results page table to link directly to Item Reports and added Results navigation with stubs for age analysis and item search.
+- Added a daily Featured Item to the home page with summary statistics, an all-time response histogram, and links to the full report and data.
+- Implemented public daily Community Member statistics pages, an active-member index, ORCID identity links, active-member comparisons, successful-login tracking, and an AWS automation generator.
 
 ## Known Risks
 
 - Several public pages still contain placeholder content.
 - Production PHP is on version 7.2, so future PHP code must stay compatible with that baseline unless hosting changes.
 - Local development environment does not currently include the PHP CLI, so PHP syntax checks must be run on a PHP-equipped machine or production-like host.
+- The Community Member statistics code requires its tracked last-login migration to be applied to production before the updated PHP is deployed.

@@ -3,6 +3,7 @@
 deploy_config.json
 db_config.json
 log.txt
+logs/
 python/__pycache__/
 *.pyc
 website/admin/exports/*.csv.gz

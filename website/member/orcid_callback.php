@@ -85,6 +85,7 @@ function ryerson_member_activate_invited_member(mysqli $mysqli, array $invitatio
 				orcid_profile_fetched_at_utc = UTC_TIMESTAMP(),
 				orcid_record_created_on = ?,
 				membership_status = ?,
+				last_login_at_utc = UTC_TIMESTAMP(),
 				updated_at_utc = UTC_TIMESTAMP()
 			WHERE community_member_id = ? AND orcid_id = ?
 		';
@@ -160,6 +161,7 @@ try {
 
 	if ($mode === 'login') {
 		$member = ryerson_community_fetch_active_member_by_orcid($mysqli, $orcidId);
+		ryerson_community_record_member_login($mysqli, (int) $member['community_member_id']);
 		$mysqli->close();
 		ryerson_community_set_member_session($member);
 		ryerson_member_clear_oauth_session();

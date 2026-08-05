@@ -306,6 +306,15 @@ function ryerson_community_display_name_from_record(array $record, string $fallb
 		return $fullName;
 	}
 
+	$recordOrcidId = ryerson_community_string_from_nested($record, ['orcid-identifier', 'path']);
+	if ($recordOrcidId !== '') {
+		try {
+			return 'ORCID ' . ryerson_community_normalize_orcid_id($recordOrcidId);
+		} catch (RuntimeException $exception) {
+			// Continue to the existing non-empty fallback for malformed upstream data.
+		}
+	}
+
 	$emailName = trim((string) strstr($fallbackEmail, '@', true));
 	if ($emailName !== '') {
 		return $emailName;
@@ -532,6 +541,27 @@ function ryerson_community_fetch_active_member_by_orcid(mysqli $mysqli, string $
 	}
 
 	return $row;
+}
+
+function ryerson_community_record_member_login(mysqli $mysqli, int $communityMemberId): void
+{
+	$sql = '
+		UPDATE `' . COMMUNITY_MEMBERS_TABLE_NAME . '`
+		SET last_login_at_utc = UTC_TIMESTAMP(), updated_at_utc = UTC_TIMESTAMP()
+		WHERE community_member_id = ? AND membership_status = "active"
+	';
+	$statement = $mysqli->prepare($sql);
+	if ($statement === false) {
+		throw new RuntimeException('Could not prepare member login timestamp update.');
+	}
+
+	$statement->bind_param('i', $communityMemberId);
+	if (!$statement->execute()) {
+		$statement->close();
+		throw new RuntimeException('Could not update member login timestamp.');
+	}
+
+	$statement->close();
 }
 
 function ryerson_community_set_member_session(array $member): void

@@ -156,9 +156,9 @@ Similarly, five visualizations illustrate the five items where age and agreement
 
 ### Home page featured item
 
-On the Ryerson Project home page at https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/ there will be one featured item (in addition to the existing content). R/create_index_dictionary.R will create the appropriate content.  That script will run once per day.  See R/create_results_dictionary.R for a similar script.  A featured item will be randomly chosen from those items that meet this criterion: ITEM_N greater than equal to the median of all ITEM_N values.
+On the Ryerson Project home page at https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/ there will be one Featured Item (in addition to the existing content). R/create_index_dictionary.R will create the appropriate content.  That script will run once per day.  See R/create_results_dictionary.R for a similar script.  A Featured Item will be randomly chosen from those items that meet this criterion: ITEM_N greater than equal to the median of all ITEM_N values.
 
-The featured item content on the home page is a subset of what you would find on the item page.  Specifically, an 11 bar histogram shows the all-time count of observed responses per each response option.  Descriptive statistics (also all-time) are displayed: mean, median, standard deviation, N, standard error.  A templated sentence explains: American adults' average (mean) response was ALL_TIME_MEAN on a scale of 0 (Disagree) to 10 (Agree).  ITEM_N responses have been collected (so far) from EARLIEST_OBS_DATE to MOST_RECENT_OBS_DATE.  See full results for *ITEM_TEXT*.  (*ITEM_TEXT* is a link to the item page.)  There is a link to the featured item's page within item-results/.
+The featured item content on the home page is a subset of what you would find on the item page.  The full text of the Featured Item appears as a blockquote under the Featured Item header.  A templated sentence explains: American adults' average (mean) response was ALL_TIME_MEAN on a scale of 0 (Disagree) to 10 (Agree).  ITEM_N responses have been collected (so far) from EARLIEST_OBS_DATE to MOST_RECENT_OBS_DATE.  Descriptive statistics (all-time) are displayed: mean, median, standard deviation, N, standard error.  An 11 bar histogram shows the all-time count of observed responses per each response option.  A sentence reads: See full results for *ITEM_TEXT*.  (*ITEM_TEXT* is a link to the item page within item-results/.)  A sentence reads: You may download the data for your own analysis.  ('download the data' is a link to the Download page.)  A sentence reads: Explore more Ryerson Project results.  ('Ryerson Project results' is a link to the Results page.)
 
 ## Details: Share the new analysis.
 
@@ -172,17 +172,15 @@ The Ranked by Agreement table is the primary object on results.html.  However, t
 
 ## Community Features
 
-Researchers may request to join the community.  A request consists of submitting their email address and ORCID.  Dr. Jones will decide to approve requests or not.  A non=empty ORCID record older than 180 days is required.
+Researchers may request to join the community.  A request consists of submitting their email address and ORCID.  Dr. Jones will decide to approve requests or not.  A non-empty ORCID record older than 180 days is required.
 
 Registration and log in with ORCID is the only way to use the community features.
 
 Each new user receives 10 NEDbucks.  Users can earn NEDbucks by participating.
 
-Use Stripe so that researchers can buy guaranteed observation bundles.  They buy NEDbucks.  NEDbucks convert to responses by way of promoting items to a higher Tier.  Example $100 dollars to 100 NEDbucks equals 1000 responses.  NEDbucks instead of simply a dollar balance, because I want to give away NEDbucks for community participation, good citizen actions.
+Community features that live on jasonjones.ninja: discussion forum, prediction contest, votes to prioritize items.
 
-Community features that live on ninja: discussion forum, prediction contest, votes to promote items.
-
-A Community Member can add one new Tier 4 item per day.  Community members may observe the current Tier state of items.  Perhaps a page for each Tier or one page with tabs.
+A Community Member can add one new Tier 4 item per day.  Community members may observe the current Tier state of items.
 
 If Dr. Jones accepts a community join request, the following happens:
 1. The system pulls ORCID info into local profile.  Stored in the database.
@@ -195,8 +193,10 @@ When a community member logs in, they see the Member Home Page.  On this page th
 - Link to a form where Member can suggest a new item.  The item is recorded to the database as a Suggested Item.  Each member may submit a maximum 1 Suggested Item per day.  There is an admin interface for Dr. Jones to edit and approve Suggested Items.  He may edit the item to fix a typo or wording.  He may reject the Suggested Item with a reason.  He may approve the Suggested Item.  Upon reject or approve, the suggesting Member receives an email notifying them of the result.  An approved Suggested Item becomes a Tier 4 item.
 - Link to a page where Members see the current items.  Search box so Member can limit to keyword match.  Items are sorted by current Tier.  Tier is visually clear - light background color or a leading small symbol?  Also displayed is Community ELO score - will be a daily-updated ELO score based on temporally discounted Bakeoff results.  Button to promote item with NedBucks.  Promotion temporarily pushes item to higher tier.  Promoted items have Community ELO scores, but score does not determine its Tier.
 - Link to item bakeoff page.  Member sees two items.  Expresses preference.  Recorded to db.  Maximum 100 per day.
-- Link to view stats.  Member sees their counts of each action and the community total.  Percentile and histogram compares to all other users.
+- Link to view one's own Member stats.  This opens the *public* member stats page in a new window.  Every Communtity Member has a public member stats page. The public member stats page displays: Total Suggested Items, Total Bakeoff Votes Submitted, Current NEDbucks Balance, Days Since Last Login, Days Since Approved.  These all appear in a table with columns Value|Metric|More than % Other Members. Value is always numeric.  Metric is the name of the thing being measured. More than % Other Members is in comparison to all other Community Members.  More Metrics will be added in the future. Member Statistics pages are public. Each Community Member has one. They are static HTML pages updated once per day. There is one static HTML index page with links to every Community Member's public stats page.
 - Link where Member can purchase more NedBucks.
+
+Use Stripe so that researchers can buy guaranteed observation bundles.  They buy NEDbucks.  NEDbucks convert to responses by way of promoting items to a higher Tier.  Example $100 dollars to 100 NEDbucks equals 1000 responses.  NEDbucks instead of simply a dollar balance, because I want to give away NEDbucks for community participation, good citizen actions.
 
 Cost is 100 NEDbucks for this service: Next-day promotion of chosen item to Tier 20. Guaranteed minimum half of total respondents per day, and run for 100 days.  Then demoted to Tier 40 unless further payment is made.
 
@@ -286,6 +286,8 @@ Always use https within jasonjones.ninja. Never add www. in front of jasonjones.
 Never put secrets in tracked files, on GitHub, within served directories or other risky places.  Use a config file or files.
 
 Let's keep track of what is Now, Next, Later and Done using STATUS.md
+
+An agent never edits this document: RYERSON_SPEC.md. An agent may point out discrepencies between RYERSON_SPEC.md and what is implemented in the repo.
 
 In R code, use tidyverse conventions for all data work.
 

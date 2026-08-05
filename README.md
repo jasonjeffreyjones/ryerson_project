@@ -41,9 +41,11 @@ For all Ryerson Project data, visit the Download page at <https://jasonjones.nin
 - Browse the daily Ranked by Agreement table for all observed survey items.
 - Open static item-level reports with all-time response distributions, descriptive statistics, item rank comparisons, monthly trends, and observed-period trend estimates.
 - Browse the Item Reports index generated from the canonical data.
+- View a Featured Item on the home page, selected daily from items with at least the median observation count.
 - Review Ryerson data versions mirrored to Zenodo.
 - Accept an invitation, create an ORCID-gated community account, and log in as an approved community member.
 - View a Member Home Page with member name and NEDbucks balance.
+- Open public daily Community Member statistics pages and an index of active members.
 - Submit one suggested survey item per UTC day as an approved community member.
 - View current survey items and filter them by keyword as an approved community member.
 - Complete item bakeoff choices as an approved community member, subject to the 100 choices per UTC day limit.
@@ -54,10 +56,8 @@ For all Ryerson Project data, visit the Download page at <https://jasonjones.nin
 - Alpha tester recruitment page.
 - Full Results by Age analysis page with strongest positive and negative age-agreement correlations.
 - Search interface for item result pages.
-- Featured item module on the Ryerson Project home page.
 - Community discussion forum.
 - Prediction contest.
-- Member stats page showing individual and community action counts, percentiles, and histograms.
 - NEDbucks purchases.
 - NEDbucks-based guaranteed observation bundles and paid item promotion to higher tiers.
 - Promotion logic that temporarily overrides score-based tiers.
@@ -73,6 +73,7 @@ For all Ryerson Project data, visit the Download page at <https://jasonjones.nin
 - `json/`: page-specific JSON dictionaries used during template rendering
 - `website/`: deployable website files, including rendered HTML, PHP handlers, survey flows, shared PHP helpers, and image assets
 - `sql/`: database table definitions and migrations
+- `CRON.md`: UTC automation schedule, daily logging wrapper, and deployment order
 
 ## How It Works
 
@@ -95,6 +96,7 @@ Dynamic features under `website/` are PHP files that run on the production serve
 - `website/member/item-bakeoff.php`: member item bakeoff voting interface
 - `website/admin/suggested_items.php`: admin review page for suggested items
 - `website/admin/item_bakeoffs.php`: admin item bakeoff activity summary
+- `website/admin/community_member_stats_snapshot.php`: protected active-member statistics snapshot for the automation server
 - `website/survey/`: Prolific-facing survey flow that saves responses
 - `website/demo-survey/`: public survey demonstration that does not save responses
 
@@ -111,6 +113,10 @@ It joins local daily response and demographic exports, hashes respondent IDs, an
 The public download aggregate files are rebuilt by `R/create_download_dictionary.R`.
 It reads `website/data/ryerson.csv.gz`, writes `website/data/monthly-aggregated-ryerson.csv.gz`
 and `website/data/all-time-aggregated-ryerson.csv.gz`, and updates `json/download.json`.
+
+The home-page Featured Item is selected and summarized by `R/create_index_dictionary.R`.
+Selection is stable for each UTC date and is limited to items whose observation count is at least
+the median observation count across all observed items.
 
 Daily Zenodo mirroring is handled by `python/ryerson_project_upload_data_to_zenodo.py`.
 It creates a new Zenodo version from the latest published deposition, uploads the three files
@@ -174,6 +180,19 @@ to 100 bakeoff choices per UTC day.
 Item Retiering requires `sql/alter_survey_items_for_community_score.sql`. The admin retiering page
 and `python/ryerson_project_retier_items.py` recalculate Community Elo from completed UTC-day
 bakeoffs and update item tiers.
+
+Public Community Member statistics require `sql/alter_community_members_add_last_login.sql` to be
+applied to the production database before the updated ORCID callback and snapshot endpoint are
+deployed. The migration backfills the best available historical login timestamp from each active
+member's latest accepted invitation. Subsequent successful ORCID logins update the timestamp
+directly.
+
+`python/ryerson_project_update_member_stats.py` requests the protected production snapshot,
+compares each metric with strictly lower values among other active members, builds static pages in
+`website/member-stats/`, and deploys only that directory. ORCID public display names and ORCID
+profile links are public; email addresses and email-derived fallback names are never included. Run
+with `--skip-deploy` to inspect local output. See
+`CRON.md` for the production deployment order and daily schedule.
 
 Set the Prolific recruitment variables locally before running `python/ryerson_project_create_prolific_study.py`:
 

@@ -10,6 +10,7 @@ CREATE TABLE community_members (
   orcid_record_created_on DATE NULL COMMENT 'Purpose: useful because the spec requires an ORCID profile older than 180 days.',
   membership_status VARCHAR(32) NOT NULL COMMENT 'Purpose: lifecycle state such as pending, active, suspended, rejected.',
   approved_at_utc DATETIME NULL COMMENT 'Purpose: when Dr. Jones accepted the join request.',
+  last_login_at_utc DATETIME NULL COMMENT 'Purpose: most recent successful ORCID authentication, used by public Community Member statistics.',
   welcome_email_sent_at_utc DATETIME NULL COMMENT 'Purpose: tracks whether the required welcome email has been sent.',
   nedbucks_balance INT NOT NULL DEFAULT 0 COMMENT 'Purpose: current spendable balance shown on the member home page.',
   notes_internal TEXT NULL COMMENT 'Purpose: admin-only notes about approvals, moderation, or exceptions.',
