@@ -124,9 +124,37 @@ function ryerson_admin_overview_response_value_counts(mysqli $mysqli, ?string $o
 	return $responseValueCounts;
 }
 
+function ryerson_admin_overview_active_user_counts(mysqli $mysqli): array
+{
+	$sql = '
+		SELECT
+			COUNT(CASE WHEN last_login_at_utc >= UTC_TIMESTAMP() - INTERVAL 1 DAY THEN 1 END) AS daily_active_users,
+			COUNT(CASE WHEN last_login_at_utc >= UTC_TIMESTAMP() - INTERVAL 7 DAY THEN 1 END) AS weekly_active_users,
+			COUNT(CASE WHEN last_login_at_utc >= UTC_TIMESTAMP() - INTERVAL 30 DAY THEN 1 END) AS monthly_active_users,
+			COUNT(CASE WHEN last_login_at_utc >= UTC_TIMESTAMP() - INTERVAL 365 DAY THEN 1 END) AS yearly_active_users
+		FROM `' . COMMUNITY_MEMBERS_TABLE_NAME . '`
+		WHERE membership_status = "active"
+	';
+	$result = $mysqli->query($sql);
+	if ($result === false) {
+		throw new RuntimeException('Could not count active Community Member users.');
+	}
+
+	$row = $result->fetch_assoc();
+	$counts = [
+		'daily_active_users' => isset($row['daily_active_users']) ? (int) $row['daily_active_users'] : 0,
+		'weekly_active_users' => isset($row['weekly_active_users']) ? (int) $row['weekly_active_users'] : 0,
+		'monthly_active_users' => isset($row['monthly_active_users']) ? (int) $row['monthly_active_users'] : 0,
+		'yearly_active_users' => isset($row['yearly_active_users']) ? (int) $row['yearly_active_users'] : 0,
+	];
+	$result->close();
+	return $counts;
+}
+
 function ryerson_admin_overview_fetch_counts(mysqli $mysqli): array
 {
 	$previousDayUtc = ryerson_admin_overview_previous_day_utc();
+	$activeUserCounts = ryerson_admin_overview_active_user_counts($mysqli);
 
 	return [
 		'generated_at_utc' => gmdate('Y-m-d H:i:s'),
@@ -192,6 +220,10 @@ function ryerson_admin_overview_fetch_counts(mysqli $mysqli): array
 			'SELECT COUNT(*) AS total_count FROM `' . COMMUNITY_MEMBERS_TABLE_NAME . '`',
 			'Could not count community members.'
 		),
+		'daily_active_users' => $activeUserCounts['daily_active_users'],
+		'weekly_active_users' => $activeUserCounts['weekly_active_users'],
+		'monthly_active_users' => $activeUserCounts['monthly_active_users'],
+		'yearly_active_users' => $activeUserCounts['yearly_active_users'],
 		'item_bakeoffs_all_time' => ryerson_admin_overview_scalar_count(
 			$mysqli,
 			'SELECT COUNT(*) AS total_count FROM `' . ITEM_BAKEOFF_RESULTS_TABLE_NAME . '`',
@@ -269,6 +301,10 @@ function ryerson_admin_overview_build_email_body(array $counts): string
 		'- Total invitations: ' . (string) $counts['community_invitations'],
 		'- Invitations by status: ' . ryerson_admin_overview_format_grouped_counts($counts['community_invitations_by_status']),
 		'- Total community members: ' . (string) $counts['community_members'],
+		'- Daily Active Users (rolling 1 day): ' . (string) $counts['daily_active_users'],
+		'- WAU (rolling 7 days): ' . (string) $counts['weekly_active_users'],
+		'- MAU (rolling 30 days): ' . (string) $counts['monthly_active_users'],
+		'- YAU (rolling 365 days): ' . (string) $counts['yearly_active_users'],
 		'- Total suggested_items: ' . (string) $counts['suggested_items'],
 		'- Suggested items by moderation_status: ' . ryerson_admin_overview_format_grouped_counts($counts['suggested_items_by_status']),
 		'',
@@ -374,6 +410,10 @@ ryerson_admin_render_header('Admin Overview');
           <dt class="col-sm-5">Waiting list requests</dt><dd class="col-sm-7"><?php echo ryerson_admin_html((string) $counts['waiting_list_requests']); ?></dd>
           <dt class="col-sm-5">Invitations</dt><dd class="col-sm-7"><?php echo ryerson_admin_html((string) $counts['community_invitations']); ?> total; <?php echo ryerson_admin_html(ryerson_admin_overview_format_grouped_counts($counts['community_invitations_by_status'])); ?></dd>
           <dt class="col-sm-5">Community members</dt><dd class="col-sm-7"><?php echo ryerson_admin_html((string) $counts['community_members']); ?></dd>
+          <dt class="col-sm-5">Daily Active Users (rolling 1 day)</dt><dd class="col-sm-7"><?php echo ryerson_admin_html((string) $counts['daily_active_users']); ?></dd>
+          <dt class="col-sm-5">WAU (rolling 7 days)</dt><dd class="col-sm-7"><?php echo ryerson_admin_html((string) $counts['weekly_active_users']); ?></dd>
+          <dt class="col-sm-5">MAU (rolling 30 days)</dt><dd class="col-sm-7"><?php echo ryerson_admin_html((string) $counts['monthly_active_users']); ?></dd>
+          <dt class="col-sm-5">YAU (rolling 365 days)</dt><dd class="col-sm-7"><?php echo ryerson_admin_html((string) $counts['yearly_active_users']); ?></dd>
           <dt class="col-sm-5">Item Bakeoff results</dt><dd class="col-sm-7"><?php echo ryerson_admin_html((string) $counts['item_bakeoffs_all_time']); ?> all-time; <?php echo ryerson_admin_html((string) $counts['item_bakeoffs_previous_day']); ?> previous day</dd>
           <dt class="col-sm-5">Item Bakeoff members</dt><dd class="col-sm-7"><?php echo ryerson_admin_html((string) $counts['item_bakeoff_members_all_time']); ?> all-time; <?php echo ryerson_admin_html((string) $counts['item_bakeoff_members_previous_day']); ?> previous day</dd>
           <dt class="col-sm-5">Suggested items</dt><dd class="col-sm-7"><?php echo ryerson_admin_html((string) $counts['suggested_items']); ?> total; <?php echo ryerson_admin_html(ryerson_admin_overview_format_grouped_counts($counts['suggested_items_by_status'])); ?></dd>

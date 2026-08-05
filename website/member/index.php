@@ -29,6 +29,7 @@ $nedbucksBalance = $isLoggedIn ? (int) $member['nedbucks_balance'] : 0;
     <title>Ryerson Member Home</title>
     <link rel="icon" type="image/png" href="../images/favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
   </head>
   <body>
     <main class="container py-4">
@@ -85,6 +86,13 @@ $nedbucksBalance = $isLoggedIn ? (int) $member['nedbucks_balance'] : 0;
           <section class="border rounded p-3 h-100">
             <h2 class="h5">Purchase NEDbucks</h2>
             <button class="btn btn-outline-secondary" type="button" disabled>Coming Soon</button>
+          </section>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <section class="border rounded p-3 h-100">
+            <h2 class="h5"><i class="bi bi-megaphone" aria-hidden="true"></i> Feedback</h2>
+            <p class="mb-2"><strong>Email:</strong> jason.j.jones@stonybrook.edu</p>
+            <p class="mb-0"><strong>Code:</strong> <a href="https://github.com/jasonjeffreyjones/ryerson_project/" target="_blank" rel="noopener">GitHub</a></p>
           </section>
         </div>
       </div>
