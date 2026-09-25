@@ -10,7 +10,7 @@ from pathlib import Path
 import sys
 
 import requests
-
+import time
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENV_PATH = PROJECT_ROOT / ".env"
@@ -285,6 +285,7 @@ def pull_demographic_exports(args):
 				continue
 			log(f"Fetching demographic export for {observation_date} from Prolific study {study_id}.")
 			payload = fetch_demographic_csv(session, api_token, study_id)
+			time.sleep(0.25)
 
 		if args.dry_run:
 			log(f"Dry run: would write {destination_path}")

@@ -5,16 +5,18 @@
 - Build and maintain momentum through small, deployable improvements.
 - Keep the website, scripts, and project structure clean enough for steady public development.
 - Build the next thin application slice without overcomplicating architecture.
-- Apply the Community Member last-login migration to production, deploy the public statistics slice, and verify its daily cron run.
+- We are in an unusual state. The previous automation server (an AWS ec2) became unresponsive and irrecoverable. I have migrated the repo to this new automation server (an AWS LightSail). We are trying to recover full operation.
+- Autonomus posting of new daily surveys (via cron scheduled python script) is currently working.
+- Daily updates of the website content are not happening. There is no scheduled cron for this at present on this new automation server.
+- CRON.md may NOT be a reliable description of current or past functionality. Let's figure that out together.
 
 ## Next
 
-- Create a static HTML page that will be used to recruit alpha testers.  This page lives at https://jasonjones.ninja/social-science-dashboard-inator/ryerson-project/alpha-testing.html.  It is not linked from the rest of the site.  Instead, Dr. Jones will distribute it through emails and social media posts to recruit qualified Community Members to be alpha testers.
+- Add community participation features.
+- Add Daily Emails features.
 
 ## Later
 
-- Add community participation features.
-- Add Daily Emails features.
 - Implement all functionality as described in the specification RYERSON_SPEC.md.
 
 ## Done

@@ -148,11 +148,11 @@ svg_text <- function(x, y, label, anchor = "middle", size = 12, fill = "#374151"
 
 build_histogram_svg <- function(counts, item_label) {
 	width <- 760
-	height <- 330
+	height <- 350
 	margin_left <- 58
 	margin_right <- 18
 	margin_top <- 28
-	margin_bottom <- 58
+	margin_bottom <- 78
 	chart_width <- width - margin_left - margin_right
 	chart_height <- height - margin_top - margin_bottom
 	max_count <- max(counts$count, 1)
@@ -181,7 +181,7 @@ build_histogram_svg <- function(counts, item_label) {
 
 	x_labels <- purrr::map_chr(RESPONSE_VALUES, function(response_value) {
 		x <- margin_left + response_value * slot_width + slot_width / 2
-		svg_text(x, height - 34, response_value)
+		svg_text(x, height - 54, response_value)
 	})
 
 	y_labels <- paste(
@@ -197,7 +197,8 @@ build_histogram_svg <- function(counts, item_label) {
 		paste(bars, collapse = "\n"),
 		paste(x_labels, collapse = "\n"),
 		y_labels,
-		svg_text(width / 2, height - 8, "Response value"),
+		svg_text(width / 2, height - 30, "Agreement", size = 16),
+		svg_text(width / 2, height - 10, "(0 = maximum disagreement, 10 = maximum agreement)", size = 14),
 		svg_text(14, height / 2, "Count", "middle", 12, "#374151", 'transform="rotate(-90 14 165)"'),
 		'</svg>',
 		sep = "\n"

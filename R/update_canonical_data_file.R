@@ -177,7 +177,7 @@ read_demographic_export <- function(path, observation_date) {
 
 	demographics <- demographics[, DEMOGRAPHIC_COLUMNS, drop = FALSE]
 	demographics$hashed_respondent_id <- hash_user_ids(demographics[["Participant id"]])
-	demographics$observation_date <- as.character(observation_date)
+	demographics$observation_date <- rep(as.character(observation_date), nrow(demographics))
 	demographics
 }
 

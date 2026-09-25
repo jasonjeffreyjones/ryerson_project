@@ -1,13 +1,12 @@
 #!/bin/bash
+
 set -euo pipefail
 
-# Diagnostics to know where this bash script looks for things.
-#pwd
-#which Rscript
-#which python3
+ryerson_project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-Rscript /home/ec2-user/ryerson_project/R/update_canonical_data_file.R
-Rscript /home/ec2-user/ryerson_project/R/create_download_dictionary.R
-python3 /home/ec2-user/ryerson_project/python/ryerson_project_upload_data_to_zenodo.py
+Rscript "${ryerson_project_root}/R/update_canonical_data_file.R"
+Rscript "${ryerson_project_root}/R/create_download_dictionary.R"
+"${ryerson_project_root}/.venv/bin/python" \
+    "${ryerson_project_root}/python/ryerson_project_upload_data_to_zenodo.py"
 
 echo "completed wrangle_and_upload.sh"

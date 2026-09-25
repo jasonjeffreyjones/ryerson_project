@@ -199,12 +199,13 @@ def deploy_pages():
 		f'{get_required_env_var("RYERSON_DEPLOY_SSH_HOST")}:'
 		f'{get_required_env_var("RYERSON_DEPLOY_REMOTE_PATH")}'
 	)
-	command = [f'rsync -avz -e "{rsync_ssh_command}" {source_path} {destination}']
+	command = ["rsync", "-avz", "-e", rsync_ssh_command, source_path, destination]
 	try:
-		result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
+		result = subprocess.run(command, check=True, capture_output=True, text=True)
 		print(f'rsynced to {get_required_env_var("RYERSON_DEPLOY_SSH_HOST")}')
 	except subprocess.CalledProcessError as e:
 		print("rsync failed with error:", e.stderr.strip())
+		raise
 
 
 def main():
