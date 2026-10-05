@@ -5,6 +5,31 @@ declare(strict_types=1);
 require_once __DIR__ . '/admin_lib.php';
 require_once dirname(__DIR__) . '/lib/community_lib.php';
 
+function ryerson_admin_set_manual_invitation(array $invitation): void
+{
+	$_SESSION['ryerson_admin_manual_invitation'] = [
+		'email_address' => isset($invitation['email_address']) ? (string) $invitation['email_address'] : '',
+		'subject' => isset($invitation['subject']) ? (string) $invitation['subject'] : '',
+		'message' => isset($invitation['message']) ? (string) $invitation['message'] : '',
+	];
+}
+
+function ryerson_admin_pop_manual_invitation(): array
+{
+	if (!isset($_SESSION['ryerson_admin_manual_invitation']) || !is_array($_SESSION['ryerson_admin_manual_invitation'])) {
+		return [];
+	}
+
+	$invitation = $_SESSION['ryerson_admin_manual_invitation'];
+	unset($_SESSION['ryerson_admin_manual_invitation']);
+
+	return [
+		'email_address' => isset($invitation['email_address']) ? (string) $invitation['email_address'] : '',
+		'subject' => isset($invitation['subject']) ? (string) $invitation['subject'] : '',
+		'message' => isset($invitation['message']) ? (string) $invitation['message'] : '',
+	];
+}
+
 function ryerson_admin_get_waiting_list_search(): string
 {
 	$search = isset($_GET['search']) ? trim((string) $_GET['search']) : '';
@@ -278,10 +303,11 @@ function ryerson_admin_create_invitation(mysqli $mysqli, int $waitingListRequest
 
 		$expireStatus = 'expired';
 		$pendingStatus = 'pending';
+		$emailFailedStatus = 'email_failed';
 		$expireSql = '
 			UPDATE `' . COMMUNITY_INVITATIONS_TABLE_NAME . '`
 			SET status = ?, updated_at_utc = UTC_TIMESTAMP()
-			WHERE status = ?
+			WHERE status IN (?, ?)
 				AND (community_member_id = ? OR waiting_list_request_id = ?)
 		';
 		$expireStatement = $mysqli->prepare($expireSql);
@@ -289,7 +315,7 @@ function ryerson_admin_create_invitation(mysqli $mysqli, int $waitingListRequest
 			throw new RuntimeException('Could not prepare old invitation expiry.');
 		}
 
-		$expireStatement->bind_param('ssii', $expireStatus, $pendingStatus, $communityMemberId, $waitingListRequestId);
+		$expireStatement->bind_param('sssii', $expireStatus, $pendingStatus, $emailFailedStatus, $communityMemberId, $waitingListRequestId);
 		if (!$expireStatement->execute()) {
 			$expireStatement->close();
 			throw new RuntimeException('Could not expire old invitations.');
@@ -329,7 +355,14 @@ function ryerson_admin_create_invitation(mysqli $mysqli, int $waitingListRequest
 		throw $exception;
 	}
 
-	$emailSent = ryerson_community_send_invitation_email((string) $waitingListRequest['email_address'], $token);
+	$emailAddress = (string) $waitingListRequest['email_address'];
+	$invitationEmail = ryerson_community_build_invitation_email($token);
+	$manualInvitation = [
+		'email_address' => $emailAddress,
+		'subject' => (string) $invitationEmail['subject'],
+		'message' => (string) $invitationEmail['message'],
+	];
+	$emailSent = ryerson_community_send_invitation_email($emailAddress, $token);
 	if ($emailSent) {
 		$sentStatus = 'pending';
 		$sentSql = '
@@ -366,7 +399,8 @@ function ryerson_admin_create_invitation(mysqli $mysqli, int $waitingListRequest
 
 		return [
 			'sent' => true,
-			'message' => 'Invitation email sent to ' . (string) $waitingListRequest['email_address'] . '.',
+			'message' => 'Invitation email sent to ' . $emailAddress . '.',
+			'manual_invitation' => $manualInvitation,
 		];
 	}
 
@@ -390,6 +424,7 @@ function ryerson_admin_create_invitation(mysqli $mysqli, int $waitingListRequest
 	return [
 		'sent' => false,
 		'message' => 'Invitation was created, but SMTP reported a delivery failure.',
+		'manual_invitation' => $manualInvitation,
 	];
 }
 
@@ -441,6 +476,7 @@ try {
 
 		$result = ryerson_admin_create_invitation($mysqli, $waitingListRequestId);
 		ryerson_admin_set_flash($result['sent'] ? 'success' : 'warning', (string) $result['message']);
+		ryerson_admin_set_manual_invitation($result['manual_invitation']);
 		$mysqli->close();
 		$redirectUrl = 'waiting_list.php';
 		$search = isset($_POST['search']) ? trim((string) $_POST['search']) : '';
@@ -463,6 +499,10 @@ try {
 	$totalCountResult->close();
 	$mysqli->close();
 	$flash = ryerson_admin_pop_flash();
+	$manualInvitation = ryerson_admin_pop_manual_invitation();
+	if (count($manualInvitation) > 0) {
+		header('Cache-Control: no-store, private');
+	}
 	$csrfToken = ryerson_admin_get_csrf_token();
 } catch (RuntimeException $exception) {
 	error_log('Ryerson waiting list admin error: ' . $exception->getMessage());
@@ -488,6 +528,37 @@ ryerson_admin_render_header('Waiting List Admin');
       <div class="alert alert-<?php echo ryerson_admin_html($flash['type']); ?>" role="alert">
         <?php echo ryerson_admin_html($flash['message']); ?>
       </div>
+      <?php endif; ?>
+
+      <?php if (count($manualInvitation) > 0 && $manualInvitation['message'] !== ''): ?>
+      <section class="card border-primary mb-4" aria-labelledby="manual-invitation-heading">
+        <div class="card-header bg-primary-subtle">
+          <h2 class="h5 mb-0" id="manual-invitation-heading">Manual invitation copy</h2>
+        </div>
+        <div class="card-body">
+          <p>Use this copy if the automated message does not arrive. This invitation is shown only once on this admin page.</p>
+          <div class="mb-3">
+            <label for="manual-invitation-email" class="form-label fw-semibold">To</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="manual-invitation-email" value="<?php echo ryerson_admin_html($manualInvitation['email_address']); ?>" readonly>
+              <button type="button" class="btn btn-outline-secondary" data-copy-target="manual-invitation-email">Copy address</button>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="manual-invitation-subject" class="form-label fw-semibold">Subject</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="manual-invitation-subject" value="<?php echo ryerson_admin_html($manualInvitation['subject']); ?>" readonly>
+              <button type="button" class="btn btn-outline-secondary" data-copy-target="manual-invitation-subject">Copy subject</button>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="manual-invitation-message" class="form-label fw-semibold">Message</label>
+            <textarea class="form-control font-monospace" id="manual-invitation-message" rows="10" readonly><?php echo ryerson_admin_html($manualInvitation['message']); ?></textarea>
+          </div>
+          <button type="button" class="btn btn-primary" data-copy-target="manual-invitation-message">Copy message</button>
+          <p class="small text-muted mt-3 mb-0">Treat the invitation link as private. Creating another invitation for this person will invalidate this link.</p>
+        </div>
+      </section>
       <?php endif; ?>
 
       <form method="get" class="row g-2 align-items-end mb-4">
@@ -566,5 +637,37 @@ ryerson_admin_render_header('Waiting List Admin');
         </table>
       </div>
       <?php endif; ?>
+      <script>
+        document.querySelectorAll('[data-copy-target]').forEach(function (button) {
+          button.addEventListener('click', function () {
+            var target = document.getElementById(button.getAttribute('data-copy-target'));
+            if (!target) {
+              return;
+            }
+
+            var text = typeof target.value === 'string' ? target.value : target.textContent;
+            var originalLabel = button.textContent;
+            var showCopied = function () {
+              button.textContent = 'Copied';
+              window.setTimeout(function () {
+                button.textContent = originalLabel;
+              }, 1500);
+            };
+
+            if (navigator.clipboard && window.isSecureContext) {
+              navigator.clipboard.writeText(text).then(showCopied).catch(function () {
+                target.select();
+                document.execCommand('copy');
+                showCopied();
+              });
+              return;
+            }
+
+            target.select();
+            document.execCommand('copy');
+            showCopied();
+          });
+        });
+      </script>
 <?php
 ryerson_admin_render_footer();

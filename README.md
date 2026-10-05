@@ -171,6 +171,9 @@ The community flow expects the `community_members`, `community_invitations`, and
 Approving a waiting list request performs a strict public ORCID record check before sending an invitation.
 Invitation tokens are single-use and only their SHA-256 hashes are stored in the database.
 Community invitation and suggested item moderation emails are sent through authenticated SMTP.
+After an invitation is created, the waiting list admin shows its recipient, subject, and message
+once so the invitation can be copied into a manually sent email. Creating another invitation for
+the applicant invalidates the previously displayed link.
 Use `website/admin/smtp_test.php` to send one test email, then inspect the received message headers
 and confirm SPF, DKIM, and DMARC pass before sending production invitations.
 Members may submit one suggested item per UTC day. Admin-approved suggestions become active Tier 40

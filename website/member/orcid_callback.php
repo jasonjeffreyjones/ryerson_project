@@ -27,9 +27,18 @@ function ryerson_member_fetch_pending_invitation_for_callback(mysqli $mysqli, in
 		INNER JOIN `' . COMMUNITY_MEMBERS_TABLE_NAME . '` cm
 			ON cm.community_member_id = ci.community_member_id
 		WHERE ci.invitation_id = ?
-			AND ci.status = "pending"
+			AND ci.status IN ("pending", "email_failed")
 			AND ci.expires_at_utc > UTC_TIMESTAMP()
 			AND cm.membership_status = "pending"
+			AND NOT EXISTS (
+				SELECT 1
+				FROM `' . COMMUNITY_INVITATIONS_TABLE_NAME . '` newer_ci
+				WHERE newer_ci.invitation_id > ci.invitation_id
+					AND (
+						newer_ci.community_member_id = ci.community_member_id
+						OR newer_ci.waiting_list_request_id = ci.waiting_list_request_id
+					)
+			)
 		LIMIT 1
 	';
 	$statement = $mysqli->prepare($sql);
@@ -105,7 +114,7 @@ function ryerson_member_activate_invited_member(mysqli $mysqli, array $invitatio
 		$invitationSql = '
 			UPDATE `' . COMMUNITY_INVITATIONS_TABLE_NAME . '`
 			SET status = ?, accepted_at_utc = UTC_TIMESTAMP(), updated_at_utc = UTC_TIMESTAMP()
-			WHERE invitation_id = ? AND status = "pending"
+			WHERE invitation_id = ? AND status IN ("pending", "email_failed")
 		';
 		$invitationStatement = $mysqli->prepare($invitationSql);
 		if ($invitationStatement === false) {

@@ -404,7 +404,7 @@ function ryerson_community_orcid_authorization_url(string $state): string
 	return $baseUrl . '/oauth/authorize?' . $query;
 }
 
-function ryerson_community_send_invitation_email(string $emailAddress, string $token): bool
+function ryerson_community_build_invitation_email(string $token): array
 {
 	$link = ryerson_community_site_base_url() . '/member/accept-invitation.php?token=' . rawurlencode($token);
 	$subject = 'Invitation to join the Ryerson Project community';
@@ -413,7 +413,21 @@ function ryerson_community_send_invitation_email(string $emailAddress, string $t
 	$message .= "You will be asked to sign in with ORCID. The ORCID account must match the ORCID URL submitted with your waiting list request.\n\n";
 	$message .= "If you did not request this invitation, you can ignore this email.\n";
 
-	return ryerson_mail_send_text($emailAddress, $subject, $message);
+	return [
+		'subject' => $subject,
+		'message' => $message,
+	];
+}
+
+function ryerson_community_send_invitation_email(string $emailAddress, string $token): bool
+{
+	$invitationEmail = ryerson_community_build_invitation_email($token);
+
+	return ryerson_mail_send_text(
+		$emailAddress,
+		(string) $invitationEmail['subject'],
+		(string) $invitationEmail['message']
+	);
 }
 
 function ryerson_community_send_suggestion_moderation_email(array $member, string $status, string $statementText, string $rejectionReason): bool
@@ -457,8 +471,17 @@ function ryerson_community_fetch_pending_invitation_by_token(mysqli $mysqli, str
 		INNER JOIN `' . COMMUNITY_MEMBERS_TABLE_NAME . '` cm
 			ON cm.community_member_id = ci.community_member_id
 		WHERE ci.token_hash = ?
-			AND ci.status = "pending"
+			AND ci.status IN ("pending", "email_failed")
 			AND ci.expires_at_utc > UTC_TIMESTAMP()
+			AND NOT EXISTS (
+				SELECT 1
+				FROM `' . COMMUNITY_INVITATIONS_TABLE_NAME . '` newer_ci
+				WHERE newer_ci.invitation_id > ci.invitation_id
+					AND (
+						newer_ci.community_member_id = ci.community_member_id
+						OR newer_ci.waiting_list_request_id = ci.waiting_list_request_id
+					)
+			)
 		LIMIT 1
 	';
 	$statement = $mysqli->prepare($sql);
